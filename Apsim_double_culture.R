@@ -194,14 +194,14 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     Pot_Supply = numeric(n_days),  # Offre potentielle globale du sol
     Pot_Demand1 = numeric(n_days), # Demande potentielle culture 1
     Pot_Demand2 = numeric(n_days), # Demande potentielle culture 2
+    sdratio1 = numeric(n_days),
+    sdratio2 = numeric(n_days),
     Transpiration1 = numeric(n_days),
     Transpiration2 = numeric(n_days),
     LAI1 = numeric(n_days),
     LAI2 = numeric(n_days),
     Biomasse1 = numeric(n_days),
-    Biomasse2 = numeric(n_days),
-    sdratio1 = numeric(n_days),
-    sdratio2 = numeric(n_days)
+    Biomasse2 = numeric(n_days)
   )
   
   results$LAI1[1] <- LAI1[1]
@@ -279,8 +279,8 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     
     # Mise à jour des LAI pour chaque culture
     # On calcule le ratio offre/demande pour chaque culture
-    sdratio1 <- if (Pot_Demand1 > 0) Pot_Supply / Pot_Demand1 else 0
-    sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply / Pot_Demand2 else 0
+    sdratio1 <- if (Pot_Demand1 > 0) Pot_Supply / Pot_Demand1 else 0 # =O/D culture 1
+    sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply / Pot_Demand2 else 0 # =O/D culture 2
     leaf_effect1 <- leaf_exp_effect(sdratio1, expansion_foliaire)
     leaf_effect2 <- leaf_exp_effect(sdratio2, expansion_foliaire)
     delta_LAI1 <- leaf_effect1 * culture_params$CroissPotLAI
@@ -289,6 +289,8 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
       LAI1[i + 1] <- LAI1[i] + delta_LAI1
       LAI2[i + 1] <- LAI2[i] + delta_LAI2
     }
+    results$sdratio1[i] <- sdratio1
+    results$sdratio2[i] <- sdratio2
     results$LAI1[i] <- LAI1[i]
     results$LAI2[i] <- LAI2[i]
     
@@ -331,13 +333,24 @@ print(resultats_two)
 # Graphiques 
 ###############################################################################
 
-plot(resultats_two$Jour, resultats_two$O_D, 
-     type = "o", pch = 15, col = "magenta",
-     xlab = "Jours", ylab = "O/D",
-     main = "O/D")
-abline(h = 1, lty = 2) 
+# Graphe O/D
+# On transforme le data frame en format long pour faciliter la visualisation avec ggplot2
+data_long <- resultats_two %>% 
+  select(Jour, sdratio1, sdratio2) %>% 
+  pivot_longer(cols = c(sdratio1, sdratio2), 
+               names_to = "variable", 
+               values_to = "value")
 
-plot(resultats$Jour, resultats$Tot_ES,
+ggplot(data_long, aes(x = Jour, y = value, color = variable)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 1, linetype = "dashed") +
+  labs(x = "Jours", y = "O/D", title = "Courbes de sdratio1 et sdratio2") +
+  theme_minimal()
+
+
+# Graphe de l'eau totale dans le sol (ES)
+plot(resultats$Jour, resultats_two$Tot_ES,
      type = "o", pch = 17, col = "cyan3",
      xlab = "Jours", ylab = "Eau disponible (mm)",
      main = "Eau disponible")
@@ -354,22 +367,31 @@ plot(resultats$Jour, resultats$LAI,
      xlab = "Jours", ylab = "LAI",
      main = "LAI")
 
-plot(resultats$Jour, resultats$Biomasse_cumulee,
-     type = "o", pch = 15, col = "magenta",
-     xlab = "Jours", ylab = "Biomasse cumulée (g/m2)",
-     main = "Biomasse cumulée")
+
+# Graphe de la biomasse cumulée
+data_long_biom <- resultats_two %>% 
+  select(Jour, Biomasse_cum1, Biomasse_cum2) %>% 
+  pivot_longer(cols = c(Biomasse_cum1, Biomasse_cum2), 
+               names_to = "Culture", 
+               values_to = "Biomasse_cumulee")
+
+ggplot(data_long_biom, aes(x = Jour, y = Biomasse_cumulee, color = Culture)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Jours", y = "Biomasse cumulée (g/m2)", title = "Biomasse cumulée") +
+  theme_minimal()
 
 
 ggplot() +
   # Radiation
-  geom_line(data = data.frame(Jour = resultats$Jour, Radiation = facteur_externe$Radiation),
+  geom_line(data = data.frame(Jour = resultats_two$Jour, Radiation = facteur_externe$Radiation),
             aes(x = Jour, y = Radiation, color = "Radiation")) +
-  geom_point(data = data.frame(Jour = resultats$Jour, Radiation = facteur_externe$Radiation),
+  geom_point(data = data.frame(Jour = resultats_two$Jour, Radiation = facteur_externe$Radiation),
              aes(x = Jour, y = Radiation, color = "Radiation")) +
   # VPDcalc
-  geom_line(data = data.frame(Jour = resultats$Jour, VPDcalc = facteur_externe$VPDcalc),
+  geom_line(data = data.frame(Jour = resultats_two$Jour, VPDcalc = facteur_externe$VPDcalc),
             aes(x = Jour, y = VPDcalc, color = "VPDcalc")) +
-  geom_point(data = data.frame(Jour = resultats$Jour, VPDcalc = facteur_externe$VPDcalc),
+  geom_point(data = data.frame(Jour = resultats_two$Jour, VPDcalc = facteur_externe$VPDcalc),
              aes(x = Jour, y = VPDcalc, color = "VPDcalc")) +
   # Légende 
   scale_color_manual(name = "Légende",
