@@ -267,6 +267,10 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
 resultats <- simulate(facteur_externe, soil_params, culture_params, expansion_foliaire)
 print(resultats)
 
+###############################################################################
+# Calcul de la biomasse
+###############################################################################
+
 resultats$I <- 1-exp(-culture_params$k*resultats$LAI)
 
 # Calcul de la biomasse 
