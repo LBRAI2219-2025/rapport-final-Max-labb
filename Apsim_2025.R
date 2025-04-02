@@ -270,9 +270,9 @@ print(resultats)
 resultats$I <- 1-exp(-culture_params$k*resultats$LAI)
 
 # Calcul de la biomasse 
-resultats$Biomasse_1 <- (resultats$Pot_Supply * culture_params$TEc)/ (facteur_externe$VPDcalc/10)
+resultats$Biomasse_1 <- (resultats$Pot_Supply * culture_params$TEc)/ (facteur_externe$VPDcalc/10) # eau limitante 
 
-resultats$Biomasse_2 <- facteur_externe$Radiation * culture_params$RUE * resultats$I
+resultats$Biomasse_2 <- facteur_externe$Radiation * culture_params$RUE * resultats$I # lumière limitante
 
 resultats$O_D <- ifelse(resultats$Pot_Demand == 0, 0,
                         resultats$Pot_Supply / resultats$Pot_Demand)
