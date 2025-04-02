@@ -23,13 +23,13 @@ culture_params <- list(
   LAI_initial       = 1.5,   
   Biomasse_initiale = 45     
 )
-culture2_params <- list(RUE               = 1.25,  # Radiation Use Efficiency [g/MJ]
-                        TEc               = 9,     # Coefficient d'efficience de la transpiration
-                        VPR               = 20,    # Vitesse production de racines [mm/jour]
-                        CroissPotLAI      = 0.1,   # Croissance potentielle du LAI 
-                        k                 = 0.45,  # Coefficient d'extinction de la lumière
-                        LAI_initial       = 1.5,   
-                        Biomasse_initiale = 45
+culture2_params <- list(RUE               = 1.5,  # Radiation Use Efficiency [g/MJ]
+                        TEc               = 8,     # Coefficient d'efficience de la transpiration
+                        VPR               = 18,    # Vitesse production de racines [mm/jour]
+                        CroissPotLAI      = 0.2,   # Croissance potentielle du LAI 
+                        k                 = 0.3,  # Coefficient d'extinction de la lumière
+                        LAI_initial       = 1.8,   
+                        Biomasse_initiale = 30
 )
 # Paramètres du sol (3 horizons, épaisseur, etc.) ------------------------------
 
@@ -355,20 +355,43 @@ plot(resultats$Jour, resultats_two$Tot_ES,
      xlab = "Jours", ylab = "Eau disponible (mm)",
      main = "Eau disponible")
 
-transpi_cum <- cumsum(resultats$Transpiration)
 
-plot(resultats$Jour, transpi_cum,
-     type = "o", pch = 18, col = "blue",
-     xlab = "Jours", ylab = "Transpiration cumulée (mm)",
-     main = "Transpiration cumulée")
+# Graphe des transpirations cumulées
+# Calcul des cumuls pour chaque culture
+resultats_two <- resultats_two %>%
+  mutate(Transpiration1_cum = cumsum(Transpiration1),
+         Transpiration2_cum = cumsum(Transpiration2))
 
-plot(resultats$Jour, resultats$LAI,
-     type = "o", pch = 18, col = "blue4",
-     xlab = "Jours", ylab = "LAI",
-     main = "LAI")
+# Conversion au format long
+data_long_transpi <- resultats_two %>%
+  select(Jour, Transpiration1_cum, Transpiration2_cum) %>%
+  pivot_longer(cols = c(Transpiration1_cum, Transpiration2_cum),
+               names_to = "Culture",
+               values_to = "Transpiration_cum")
+
+# Tracé du graphique avec ggplot2
+ggplot(data_long_transpi, aes(x = Jour, y = Transpiration_cum, color = Culture)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Jours",
+       y = "Transpiration cumulée (mm)",
+       title = "Transpiration cumulée") +
+  theme_minimal()
 
 
-# Graphe de la biomasse cumulée
+# Graphe du LAI
+data_long_LAI <- resultats_two %>% 
+  select(Jour, LAI1, LAI2) %>% 
+  pivot_longer(cols = c(LAI1, LAI2), names_to = "Culture", values_to = "LAI")
+
+ggplot(data_long_LAI, aes(x = Jour, y = LAI, color = Culture)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Jours", y = "LAI", title = "Evolution du LAI") +
+  theme_minimal()
+
+
+# Graphe des biomasses cumulées
 data_long_biom <- resultats_two %>% 
   select(Jour, Biomasse_cum1, Biomasse_cum2) %>% 
   pivot_longer(cols = c(Biomasse_cum1, Biomasse_cum2), 
@@ -382,6 +405,7 @@ ggplot(data_long_biom, aes(x = Jour, y = Biomasse_cumulee, color = Culture)) +
   theme_minimal()
 
 
+# Graphe d'évolution la radiation et du VPDcalc
 ggplot() +
   # Radiation
   geom_line(data = data.frame(Jour = resultats_two$Jour, Radiation = facteur_externe$Radiation),
