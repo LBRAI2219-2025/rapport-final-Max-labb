@@ -199,7 +199,9 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     LAI1 = numeric(n_days),
     LAI2 = numeric(n_days),
     Biomasse1 = numeric(n_days),
-    Biomasse2 = numeric(n_days)
+    Biomasse2 = numeric(n_days),
+    sdratio1 = numeric(n_days),
+    sdratio2 = numeric(n_days)
   )
   
   results$LAI1[1] <- LAI1[1]
@@ -324,29 +326,6 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
 
 resultats_two <- simulate_two_cultures(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire)
 print(resultats_two)
-
-###############################################################################
-# Calcul de la biomasse
-###############################################################################
-
-resultats_two$I <- 1-exp(-culture_params$k*resultats_two$LAI1)
-resultats_two$I2 <- 1-exp(-culture2_params$k*resultats_two$LAI2)
-
-# Calcul de la biomasse 
-resultats$Biomasse_1 <- (resultats$Pot_Supply * culture_params$TEc)/ (facteur_externe$VPDcalc/10) # eau limitante 
-
-resultats$Biomasse_2 <- facteur_externe$Radiation * culture_params$RUE * resultats$I # lumière limitante
-
-resultats$O_D <- ifelse(resultats$Pot_Demand == 0, 0,
-                        resultats$Pot_Supply / resultats$Pot_Demand)
-
-resultats$Biomasse_reelle <- ifelse(
-  test = resultats$O_D > 1,
-  yes  = resultats$Biomasse_2,  # BioRadn
-  no   = resultats$Biomasse_1   # BioEau
-)
-
-resultats$Biomasse_cumulee <- culture_params$Biomasse_initiale + cumsum(resultats$Biomasse_reelle)
 
 ###############################################################################
 # Graphiques 
