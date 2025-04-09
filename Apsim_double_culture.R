@@ -27,7 +27,7 @@ culture2_params <- list(RUE               = 1.5,   # Radiation Use Efficiency [g
                         TEc               = 8,     # Coefficient d'efficience de la transpiration
                         VPR               = 18,    # Vitesse production de racines [mm/jour]
                         CroissPotLAI      = 0.2,   # Croissance potentielle du LAI 
-                        k                 = 0.3,   # Coefficient d'extinction de la lumière
+                        k                 = 0.45,   # Coefficient d'extinction de la lumière
                         LAI_initial       = 1.8,   
                         Biomasse_initiale = 30
 )
@@ -268,6 +268,7 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     li2 <- 1 - exp(-culture_params$k * LAI2[i])  # on suppose que le coefficient k est le même pour les deux; sinon adapter
     results$li1[i] <- li1
     results$li2[i] <- li2
+    
     # Récupération de la radiation et du VPDcalc
     rad <- facteur_externe$Radiation[i]
     VPDcalc <- facteur_externe$VPDcalc[i]
