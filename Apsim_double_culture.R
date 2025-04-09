@@ -23,11 +23,11 @@ culture_params <- list(
   LAI_initial       = 1.5,   
   Biomasse_initiale = 45     
 )
-culture2_params <- list(RUE               = 1.5,  # Radiation Use Efficiency [g/MJ]
+culture2_params <- list(RUE               = 1.5,   # Radiation Use Efficiency [g/MJ]
                         TEc               = 8,     # Coefficient d'efficience de la transpiration
                         VPR               = 18,    # Vitesse production de racines [mm/jour]
                         CroissPotLAI      = 0.2,   # Croissance potentielle du LAI 
-                        k                 = 0.3,  # Coefficient d'extinction de la lumière
+                        k                 = 0.3,   # Coefficient d'extinction de la lumière
                         LAI_initial       = 1.8,   
                         Biomasse_initiale = 30
 )
@@ -35,12 +35,12 @@ culture2_params <- list(RUE               = 1.5,  # Radiation Use Efficiency [g/
 
 soil_params <- data.frame(
   Horizon     = c(1, 2, 3),
-  Epaisseur   = c(300, 300, 300), # mm
-  li          = c(50,  50,  50),  # Limite inférieure d'eau
-  ls          = c(100, 100, 100), # Limite supérieure d'eau
-  #es          = c(100, 100, 100), # Eau disponible dans sol (= sw)
-  es_h        = c(40, 30, 30), # Eau disponible dans sol par horizon ; es_h1+es_h2+es_h3 = es
-  kl          = c(0.07, 0.07, 0.07) # Taux d'extraction [mm/jour]
+  Epaisseur   = c(300, 300, 300),    # mm
+  li          = c(50,  50,  50),     # Limite inférieure d'eau
+  ls          = c(100, 100, 100),    # Limite supérieure d'eau
+  es          = c(100, 100, 100),    # Eau disponible dans sol (= sw)
+  es_h        = c(40, 30, 30),       # Eau disponible dans sol par horizon ; es_h1 + es_h2 + es_h3 = es
+  kl          = c(0.07, 0.07, 0.07)  # Taux d'extraction [mm/jour]
 )
 
 
@@ -52,6 +52,10 @@ expansion_foliaire <- data.frame(
   CEF = c(0,   1,   1)
 )
 
+expansion_foliaire2 <- data.frame(
+  OD  = c(0.4, 1.0, 3.5),
+  CEF = c(0,   0.8, 1)
+)
 
 # Paramètres météo (ex. VPD Frac)-----------------------------------------------
 
@@ -71,23 +75,23 @@ soil_params
 
 # Affiche la table d’expansion foliaire
 expansion_foliaire
+expansion_foliaire2
 
 ###############################################################################
 # Facteurs externes 
 ###############################################################################
 
 facteur_externe <- data.frame(
-  # Jours (30 à 60)
-  Jours = c(
+  Jours = c(                   # Jours (30 à 60)
     30, 31, 32, 33, 34, 35, 
     36, 37, 38, 39, 40, 41, 
     42, 43, 44, 45, 46, 47, 
     48, 49, 50, 51, 52, 53, 
     54, 55, 56, 57, 58, 59, 60
-  ),
+  ), 
   
   # Radiation (MJ/m2)
-  Radiation = c(
+  Radiation = c( #Chercher vraies données ()
     27, 27, 14, 24, 23, 21, 
     23, 25, 17, 14, 26, 26, 
     10, 26, 30, 27, 27, 29, 
@@ -96,7 +100,7 @@ facteur_externe <- data.frame(
   ),
   
   # Tmax (°C)
-  Tmax = c(
+  Tmax = c( #Chercher vraies données ()
     32.3, 31.0, 26.6, 26.0, 26.6, 29.5, 
     30.8, 32.5, 32.3, 25.2, 27.8, 28.2, 
     27.3, 28.6, 28.6, 28.3, 27.6, 31.0, 
@@ -105,7 +109,7 @@ facteur_externe <- data.frame(
   ),
   
   # Tmin (°C)
-  Tmin = c(
+  Tmin = c( #Chercher vraies données ()
     16.4, 15.8, 15.6, 10.0, 11.7, 13.0, 
     16.5, 13.8, 16.7, 16.7, 15.8, 12.8, 
     17.3, 11.3, 13.7, 13.4, 13.7, 12.2, 
@@ -114,7 +118,7 @@ facteur_externe <- data.frame(
   ),
   
   # VPDobs (hPa)
-  VPDobs = c(
+  VPDobs = c( #Chercher vraies données ()
     19, 17, 16, 14, 12, 15, 
     18, 19, 23, 21, 15, 14, 
     20, 16, 17, 17, 15, 15, 
@@ -127,7 +131,7 @@ facteur_externe <- data.frame(
 # Affiche la liste pour vérifier
 print(facteur_externe)
 
-# Fonction pour calculer saturated vapour pressure
+# Fonction pour calculer saturated vapour pressure (SVP)
 svp <- function(T) { # satured vapour pressure [kPa]
   6.1078 * exp(17.269 * T / (237.3 + T)) * 0.10
 }
@@ -158,7 +162,7 @@ facteur_externe$VPDcalc <- calc_VPDcalc(
 # Modèle
 ###############################################################################
 
-simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire) {
+simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2) {
   n_days <- nrow(facteur_externe)
   
   # Initialisation du sol (réserves d'eau pour chaque horizon)
@@ -168,6 +172,10 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
   ES1[1] <- soil_params$es_h[1]
   ES2[1] <- soil_params$es_h[2]
   ES3[1] <- soil_params$es_h[3]
+  
+  # Initialisation des profondeurs racinaires
+  rdepth <- numeric(n_days)
+  rdepth2 <- numeric(n_days)
   
   # Initialisation des LAI dynamiques pour chaque culture
   LAI1 <- numeric(n_days)
@@ -190,24 +198,26 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
   # Préparation d'un data frame pour stocker les résultats quotidiens
   results <- data.frame(
     Jour = facteur_externe$Jours,
-    Tot_ES = numeric(n_days),      # Eau totale dans le sol
-    Pot_Supply = numeric(n_days),  # Offre potentielle globale du sol
-    Pot_Demand1 = numeric(n_days), # Demande potentielle culture 1
-    Pot_Demand2 = numeric(n_days), # Demande potentielle culture 2
-    sdratio1 = numeric(n_days),
-    sdratio2 = numeric(n_days),
-    Transpiration1 = numeric(n_days),
-    Transpiration2 = numeric(n_days),
-    LAI1 = numeric(n_days),
-    LAI2 = numeric(n_days),
-    Biomasse1 = numeric(n_days),
-    Biomasse2 = numeric(n_days)
+    Tot_ES = numeric(n_days),         # Eau totale dans le sol
+    Pot_Supply = numeric(n_days),     # Offre potentielle globale du sol
+    Pot_Demand1 = numeric(n_days),    # Demande potentielle culture 1
+    Pot_Demand2 = numeric(n_days),    # Demande potentielle culture 2
+    sdratio1 = numeric(n_days),       # Offre/Demande culture 1
+    sdratio2 = numeric(n_days),       # Offre/Demande culture 2
+    Transpiration1 = numeric(n_days), # Transpiration culture 1
+    Transpiration2 = numeric(n_days), # Transpiration culture 2
+    LAI1 = numeric(n_days),           # LAI culture 1
+    LAI2 = numeric(n_days),           # LAI culture 2
+    rdepth = numeric(n_days),         # Profondeur racinaire culture 1
+    rdepth2 = numeric(n_days),        # Profondeur racinaire culture 2
+    Biomasse1 = numeric(n_days),      # Biomasse journalière culture 1
+    Biomasse2 = numeric(n_days)       # Biomasse journalière culture 2
   )
   
-  results$LAI1[1] <- LAI1[1]
-  results$LAI2[1] <- LAI2[1]
-  results$Biomasse1[1] <- Biomasse1[1]
-  results$Biomasse2[1] <- Biomasse2[1]
+  results$LAI1[1] <- LAI1[1]            # Initialisation du LAI1
+  results$LAI2[1] <- LAI2[1]            # Initialisation du LAI2
+  results$Biomasse1[1] <- Biomasse1[1]  # Initialisation de la biomasse journalière culture 1
+  results$Biomasse2[1] <- Biomasse2[1]  # Initialisation de la biomasse journalière culture 2
   
   # Fonction pour calculer l'effet d'expansion foliaire (interpolation sur la table OD/CEF)
   leaf_exp_effect <- function(sdratio, expansion_foliaire) {
@@ -232,7 +242,16 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     DAS <- facteur_externe$Jours[i]
     # Calcul de la profondeur racinaire effective commune :
     profondeur_totale <- sum(soil_params$Epaisseur)
-    rdepth <- min(DAS * max(culture_params$VPR, culture2_params$VPR), profondeur_totale)
+    rdepth <- min(DAS * culture_params$VPR, profondeur_totale)
+    rdepth2 <- min(DAS * culture2_params$VPR, profondeur_totale)
+
+    # Stockage de la profondeur racinaire dans results
+    results$rdepth[i] <- rdepth
+    results$rdepth2[i] <- rdepth2
+    
+    # Calcul de la profondeur racinaire effective pour chaque culture
+    #rdepth1 <- min(DAS * culture_params$VPR, rdepth)
+    #rdepth2 <- min(DAS * culture2_params$VPR, rdepth)
     
     # Calcul des offres potentielles pour chaque horizon (même que dans la version à 1 culture)
     of1 <- ifelse(rdepth >= soil_params$Epaisseur[1], 1, rdepth / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
@@ -282,7 +301,7 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     sdratio1 <- if (Pot_Demand1 > 0) Pot_Supply / Pot_Demand1 else 0 # =O/D culture 1
     sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply / Pot_Demand2 else 0 # =O/D culture 2
     leaf_effect1 <- leaf_exp_effect(sdratio1, expansion_foliaire)
-    leaf_effect2 <- leaf_exp_effect(sdratio2, expansion_foliaire)
+    leaf_effect2 <- leaf_exp_effect(sdratio2, expansion_foliaire2)
     delta_LAI1 <- leaf_effect1 * culture_params$CroissPotLAI
     delta_LAI2 <- leaf_effect2 * culture2_params$CroissPotLAI
     if(i < n_days) {
@@ -326,7 +345,7 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
   return(results)
 }
 
-resultats_two <- simulate_two_cultures(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire)
+resultats_two <- simulate_two_cultures(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2)
 print(resultats_two)
 
 ###############################################################################
@@ -350,7 +369,7 @@ ggplot(data_long, aes(x = Jour, y = value, color = variable)) +
 
 
 # Graphe de l'eau totale dans le sol (ES)
-plot(resultats$Jour, resultats_two$Tot_ES,
+plot(resultats_two$Jour, resultats_two$Tot_ES,
      type = "o", pch = 17, col = "cyan3",
      xlab = "Jours", ylab = "Eau disponible (mm)",
      main = "Eau disponible")
