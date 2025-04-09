@@ -161,8 +161,11 @@ facteur_externe$VPDcalc <- calc_VPDcalc(
 ###############################################################################
 # Modèle
 ###############################################################################
+# Densite des deux cultures
+Densite1 <- 0.3 # Densité de la culture 1 (Draye)
+Densite2 <- 1-Densite1 # Densité de la culture 2 (Draye)
 
-simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2) {
+simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2) {
   n_days <- nrow(facteur_externe)
   
   # Initialisation du sol (réserves d'eau pour chaque horizon)
@@ -283,12 +286,13 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     results$Pot_Demand2[i] <- Pot_Demand2
     
     # Demande totale et transpiration totale
-    Total_Demand <- Pot_Demand1 + Pot_Demand2
+    Total_Demand <- Densite1 * Pot_Demand1 + Densite2 * Pot_Demand2 # Draye
+    Total_Supply <- Densite1 * Pot_Supply + Densite2 * Pot_Supply # Draye
     Total_Transpiration <- min(Pot_Supply, Total_Demand)
     
-    # Allocation de la transpiration entre cultures (si Total_Demand > 0)
-    transp1 <- if (Total_Demand > 0) Total_Transpiration * (Pot_Demand1 / Total_Demand) else 0
-    transp2 <- if (Total_Demand > 0) Total_Transpiration * (Pot_Demand2 / Total_Demand) else 0
+    # Allocation de la transpiration entre cultures (si Total_Demand > 0) --> arbitrage 
+    transp1 <- if (Total_Demand > 0) Total_Transpiration * (Pot_Demand1*Densite1 / Total_Demand) else 0 # remettre densité sur Pot_demand ? (Draye)
+    transp2 <- if (Total_Demand > 0) Total_Transpiration * (Pot_Demand2*Densite2 / Total_Demand) else 0
     
     results$Transpiration1[i] <- transp1
     results$Transpiration2[i] <- transp2
@@ -346,7 +350,7 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
   return(results)
 }
 
-resultats_two <- simulate_two_cultures(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2)
+resultats_two <- simulate_two_cultures(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2)
 print(resultats_two)
 
 ###############################################################################
