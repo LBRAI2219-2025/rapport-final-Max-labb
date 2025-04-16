@@ -23,10 +23,12 @@ culture_params <- list(
   LAI_initial       = 1.5,   
   Biomasse_initiale = 45     
 )
-culture2_params <- list(RUE               = 1.5,   # Radiation Use Efficiency [g/MJ]
-                        TEc               = 8,     # Coefficient d'efficience de la transpiration
-                        VPR               = 18,    # Vitesse production de racines [mm/jour]
-                        CroissPotLAI      = 0.2,   # Croissance potentielle du LAI 
+#Passer kl dans la plante car il varie entre les espèces de plantes 
+
+culture2_params <- list(RUE               = 1.5,    # Radiation Use Efficiency [g/MJ]
+                        TEc               = 8,      # Coefficient d'efficience de la transpiration
+                        VPR               = 10,     # Vitesse production de racines [mm/jour]
+                        CroissPotLAI      = 0.2,    # Croissance potentielle du LAI 
                         k                 = 0.45,   # Coefficient d'extinction de la lumière
                         LAI_initial       = 1.8,   
                         Biomasse_initiale = 30
@@ -162,7 +164,7 @@ facteur_externe$VPDcalc <- calc_VPDcalc(
 # Modèle
 ###############################################################################
 # Densite des deux cultures
-Densite1 <- 0.3 # Densité de la culture 1 (Draye)
+Densite1 <- 0.5 # Densité de la culture 1 (Draye)
 Densite2 <- 1-Densite1 # Densité de la culture 2 (Draye)
 
 simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2) {
@@ -252,10 +254,6 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     results$rdepth[i] <- rdepth
     results$rdepth2[i] <- rdepth2
     
-    # Calcul de la profondeur racinaire effective pour chaque culture
-    #rdepth1 <- min(DAS * culture_params$VPR, rdepth)
-    #rdepth2 <- min(DAS * culture2_params$VPR, rdepth)
-    
     # Calcul des offres potentielles pour chaque horizon (même que dans la version à 1 culture)
     of1 <- ifelse(rdepth >= soil_params$Epaisseur[1], 1, rdepth / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
     of2 <- ifelse(rdepth <= soil_params$Epaisseur[1], 0,
@@ -276,7 +274,7 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     rad <- facteur_externe$Radiation[i]
     VPDcalc <- facteur_externe$VPDcalc[i]
     
-    # Calcul des demandes potentielles pour chaque culture
+    # Calcul des demandes potentielles pour chaque culture [lumière -> eau]
     # Formule : (Radiation * LI * RUE * (VPDcalc/10)) / TEc
     Pot_Demand1 <- rad * li1 * culture_params$RUE * (VPDcalc/10) / culture_params$TEc
     Pot_Demand2 <- rad * li2 * culture2_params$RUE * (VPDcalc/10) / culture2_params$TEc
@@ -447,3 +445,8 @@ ggplot() +
   labs(x = "Jours", y = "Valeurs") +
   theme_minimal() +
   theme(legend.position = "bottom")
+
+# Pot_supply == Transpiration1 + Transpiration2 ?
+resultats_two$Pot_Supply <= resultats_two$Transpiration1 + resultats_two$Transpiration2
+#différence ?
+resultats_two$Pot_Supply - (resultats_two$Transpiration1 + resultats_two$Transpiration2)
