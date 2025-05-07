@@ -31,7 +31,7 @@ soil_params <- data.frame(
   Epaisseur   = c(300, 300, 300), # mm
   li          = c(50,  50,  50),  # Limite inférieure d'eau
   ls          = c(100, 100, 100), # Limite supérieure d'eau
-  #es          = c(100, 100, 100), # Eau disponible dans sol (= sw)
+  #es         = c(100, 100, 100), # Eau disponible dans sol (= sw)
   es_h        = c(40, 30, 30), # Eau disponible dans sol par horizon ; es_h1+es_h2+es_h3 = es
   kl          = c(0.07, 0.07, 0.07) # Taux d'extraction [mm/jour]
 )
