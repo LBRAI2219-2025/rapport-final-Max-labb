@@ -22,9 +22,13 @@ sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply2 / Pot_Demand2 else 0
 
 Total_Supply <- Densite1 * Pot_Supply1 + Densite2 * Pot_Supply2
 Total_Demand <- Densite1 * Pot_Demand1  + Densite2 * Pot_Demand2
-Total_Transpiration <- min(Total_Supply, Total_Demand)
-transp1 <- if(Total_Demand > 0) Total_Transpiration * (Densite1 * Pot_Demand1 / Total_Demand) else 0
-transp2 <- if(Total_Demand > 0) Total_Transpiration * (Densite2 * Pot_Demand2 / Total_Demand) else 0
+TT1 <- min(Pot_Supply1, Pot_Demand1)
+TT2 <- min(Pot_Supply2, Pot_Demand2)
+Total_Transpiration <- TT1+TT2
+
+
+# transp1 <- if(Total_Demand > 0) Total_Transpiration * (Densite1 * Pot_Demand1 / Total_Demand) else 0
+# transp2 <- if(Total_Demand > 0) Total_Transpiration * (Densite2 * Pot_Demand2 / Total_Demand) else 0
 
 Transpi1 <- min(Pot_Supply1, Total_Demand)
 Transpi2 <- min(Total_Supply2, Total_Demand)
