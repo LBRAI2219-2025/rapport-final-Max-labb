@@ -283,15 +283,24 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     results$rdepth[i] <- rdepth
     results$rdepth2[i] <- rdepth2
     
-    # Calcul des offres potentielles pour chaque horizon (même que dans la version à 1 culture)
-    of1 <- ifelse(rdepth >= soil_params$Epaisseur[1], 1, rdepth / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
-    of2 <- ifelse(rdepth <= soil_params$Epaisseur[1], 0,
-                  ifelse(rdepth > soil_params$Epaisseur[1] + soil_params$Epaisseur[2],
-                         1, (rdepth - soil_params$Epaisseur[1]) / soil_params$Epaisseur[2])) * ES2[i] * soil_params$kl[2]
-    of3 <- ifelse(rdepth <= (soil_params$Epaisseur[1] + soil_params$Epaisseur[2]), 0, 
-                  (rdepth - soil_params$Epaisseur[1] - soil_params$Epaisseur[2]) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
+    # Calcul des offres potentielles pour chaque horizon, pour chaque culture
+    of1_c1 <- ifelse(rdepth >= soil_params$Epaisseur[1], 1, rdepth / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
+    of2_c1 <- ifelse(rdepth <= soil_params$Epaisseur[1], 0,
+                     ifelse(rdepth > soil_params$Epaisseur[1] + soil_params$Epaisseur[2],
+                            1, (rdepth - soil_params$Epaisseur[1]) / soil_params$Epaisseur[2])) * ES2[i] * soil_params$kl[2]
+    of3_c1 <- ifelse(rdepth <= (soil_params$Epaisseur[1] + soil_params$Epaisseur[2]), 0, 
+                     (rdepth - soil_params$Epaisseur[1] - soil_params$Epaisseur[2]) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
     
-    Pot_Supply <- of1 + of2 + of3
+    of1_c2 <- ifelse(rdepth2 >= soil_params$Epaisseur[1], 1, rdepth2 / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
+    of2_c2 <- ifelse(rdepth2 <= soil_params$Epaisseur[1], 0,
+                     ifelse(rdepth2 > soil_params$Epaisseur[1] + soil_params$Epaisseur[2],
+                            1, (rdepth2 - soil_params$Epaisseur[1]) / soil_params$Epaisseur[2])) * ES2[i] * soil_params$kl[2]
+    of3_c2 <- ifelse(rdepth2 <= (soil_params$Epaisseur[1] + soil_params$Epaisseur[2]), 0, 
+                     (rdepth2 - soil_params$Epaisseur[1] - soil_params$Epaisseur[2]) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
+    
+    Pot_Supply1 <- of1_c1 + of2_c1 + of3_c1
+    Pot_Supply2 <- of1_c2 + of2_c2 + of3_c2
+    Pot_Supply <- Pot_Supply1 + Pot_Supply2 # Offre potentielle totale du sol
     
     # Calcul de l'effet lumineux pour chaque culture
     li1 <- 1 - exp(-culture_params$k * LAI1[i])
@@ -314,13 +323,15 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     
     # Demande totale et transpiration totale
     Total_Demand <- Densite1 * Pot_Demand1 + Densite2 * Pot_Demand2 # Draye
-    Total_Supply <- Densite1 * Pot_Supply + Densite2 * Pot_Supply # Draye
+    Total_Supply <- Densite1 * Pot_Supply1 + Densite2 * Pot_Supply2 # Draye
     Total_Transpiration <- min(Pot_Supply, Total_Demand)
     
-    # Allocation de la transpiration entre cultures (si Total_Demand > 0) --> arbitrage 
-    transp1 <- if (Total_Demand > 0) Total_Transpiration * (Pot_Demand1*Densite1 / Total_Demand) else 0 # remettre densité sur Pot_demand ? (Draye)
-    transp2 <- if (Total_Demand > 0) Total_Transpiration * (Pot_Demand2*Densite2 / Total_Demand) else 0
-    
+    # Allocation de la transpiration entre cultures (si Total_Demand > 0) --> arbitrage
+    TT1 <- min(Pot_Supply1, Pot_Demand1)
+    TT2 <- min(Pot_Supply2, Pot_Demand2)
+    transp1 <- if (Pot_Demand1 > 0) TT1 * (Pot_Demand1*Densite1 / Total_Demand) else 0 # remettre densité sur Pot_demand ? (Draye)
+    transp2 <- if (Pot_Demand2 > 0) TT2 * (Pot_Demand2*Densite2 / Total_Demand) else 0
+
     results$Transpiration1[i] <- transp1
     results$Transpiration2[i] <- transp2
     
@@ -330,8 +341,8 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     
     # Mise à jour des LAI pour chaque culture
     # On calcule le ratio offre/demande pour chaque culture
-    sdratio1 <- if (Pot_Demand1 > 0) Pot_Supply / Pot_Demand1 else 0 # =O/D culture 1
-    sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply / Pot_Demand2 else 0 # =O/D culture 2
+    sdratio1 <- if (Pot_Demand1 > 0) Pot_Supply1 / Pot_Demand1 else 0 # =O/D culture 1
+    sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply2 / Pot_Demand2 else 0 # =O/D culture 2
     leaf_effect1 <- leaf_exp_effect(sdratio1, expansion_foliaire)
     leaf_effect2 <- leaf_exp_effect(sdratio2, expansion_foliaire2)
     delta_LAI1 <- leaf_effect1 * culture_params$CroissPotLAI
@@ -363,9 +374,9 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     # Mise à jour du sol : répartition de l'extraction entre horizons selon leur contribution
     if(i < n_days) {
       if(Pot_Supply > 0) {
-        ES1[i + 1] <- ES1[i] - (of1 / Pot_Supply) * Total_Transpiration
-        ES2[i + 1] <- ES2[i] - (of2 / Pot_Supply) * Total_Transpiration
-        ES3[i + 1] <- ES3[i] - (of3 / Pot_Supply) * Total_Transpiration
+        ES1[i + 1] <- ES1[i] - ((((of1_c1) / Pot_Supply1) * Transpi1)+(((of1_c2) / Pot_Supply2) * Transpi2)) # transp ou Transpi ?
+        ES2[i + 1] <- ES2[i] - ((((of2_c1) / Pot_Supply1) * Transpi1)+(((of2_c2) / Pot_Supply2) * Transpi2))
+        ES3[i + 1] <- ES3[i] - ((((of3_c1) / Pot_Supply1) * Transpi1)+(((of3_c2) / Pot_Supply2) * Transpi2))
       } else {
         ES1[i + 1] <- ES1[i]
         ES2[i + 1] <- ES2[i]
