@@ -25,7 +25,7 @@ culture_params <- list(
   LAI_initial       = 1.5,   
   Biomasse_initiale = 45     
 )
-#Passer kl dans la plante car il varie entre les espèces de plantes 
+# Passer kl dans la plante car il varie entre les espèces de plantes 
 
 culture2_params <- list(RUE               = 1.5,    # Radiation Use Efficiency [g/MJ]
                         TEc               = 8,      # Coefficient d'efficience de la transpiration
@@ -50,22 +50,22 @@ soil_params <- data.frame(
 
 
 # Expansion foliaire (table O/D - CEF)------------------------------------------
-
+# Culture 1
 expansion_foliaire <- data.frame(
-  OD  = c(0.5, 1.5, 4),
-  CEF = c(0,   1,   1)
+  OD  = c(0.5, 1.5, 4), # Offre sur demande
+  CEF = c(0,   1,   1)  # Coefficient d'expansion foliaire
 )
 
+# Culture 2
 expansion_foliaire2 <- data.frame(
   OD  = c(0.4, 1.0, 3.5),
   CEF = c(0,   0.8, 1)
 )
 
 # Paramètres météo (ex. VPD Frac)-----------------------------------------------
-
-meteo_params <- list(
-  VPD_Frac = 1.0  
-)
+# meteo_params <- list(
+#   VPD_Frac = 1.0  
+# )
 
 # Vérification------------------------------------------------------------------
 
@@ -84,14 +84,15 @@ expansion_foliaire2
 # Facteurs externes 
 ###############################################################################
 # Données météo réelles (Merci Alice)
-lat <- 50.666265; lon <- 4.622322
-start_date <- "2024-04-15"; end_date <- "2024-08-22"
-res <- GET("https://archive-api.open-meteo.com/v1/archive",
+lat <- 50.666265; lon <- 4.622322                              # Localisation de la zone d'étude : 50.666265 ; 4.622322 = batiment De serres
+start_date <- "2024-04-15"; end_date <- "2024-08-22"           # Période de simulation
+res <- GET("https://archive-api.open-meteo.com/v1/archive",    # Obtention des données de la station météo belge
            query = list(latitude = lat, longitude = lon,
                         start_date = start_date, end_date = end_date,
                         daily = "temperature_2m_max,temperature_2m_min,shortwave_radiation_sum",
                         timezone = "Europe/Brussels"))
-meteo_data <- fromJSON(content(res, "text"))$daily
+meteo_data <- fromJSON(content(res, "text"))$daily             # Importation du fichier de données JSON
+
 meteo_df <- as.data.frame(meteo_data) %>%
   rename(Date = time, Tmax = temperature_2m_max,
          Tmin = temperature_2m_min, Radiation = shortwave_radiation_sum) %>%
@@ -99,6 +100,8 @@ meteo_df <- as.data.frame(meteo_data) %>%
          svpTmax = 6.1078 * exp(17.269 * Tmax / (237.3 + Tmax)) * 0.10,
          svpTmin = 6.1078 * exp(17.269 * Tmin / (237.3 + Tmin)) * 0.10,
          VPDcalc = 0.75 * (svpTmax - svpTmin) * 10)
+
+# Génération de données artificielles
 
 facteur_externe <- data.frame(
   # Durée de la simulation (jours)
@@ -142,7 +145,7 @@ facteur_externe <- data.frame(
 )
 
 
-# Affiche la liste pour vérifier
+# Affiche la liste pour vérification
 print(facteur_externe)
 
 # Fonction pour calculer saturated vapour pressure (SVP)
@@ -172,9 +175,9 @@ facteur_externe$VPDcalc <- calc_VPDcalc(
 )
 
 ###############################################################################
-# Choix de la source de données : "reel" ou "artificiel"
+# Choix de la source de données : "reel" ou "artificiel" (switch)
 ###############################################################################
-data_source <- "artificiel"    # <- mettre "artificiel" si on veux le jeu généré
+data_source <- "artificiel"    # mettre "artificiel" si on veux le jeu généré
 
 if (data_source == "reel") {
   facteur_externe <- meteo_df %>%
