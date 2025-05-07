@@ -7,6 +7,8 @@ library(readxl)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(jsonlite)
+library(httr)
 
 ###############################################################################
 # Chargement des paramètres
@@ -65,7 +67,6 @@ meteo_params <- list(
   VPD_Frac = 1.0  
 )
 
-
 # Vérification------------------------------------------------------------------
 
 # Affiche les listes des paramètres de la culture
@@ -82,18 +83,29 @@ expansion_foliaire2
 ###############################################################################
 # Facteurs externes 
 ###############################################################################
+# Données météo réelles (Merci Alice)
+lat <- 50.666265; lon <- 4.622322
+start_date <- "2024-04-15"; end_date <- "2024-08-22"
+res <- GET("https://archive-api.open-meteo.com/v1/archive",
+           query = list(latitude = lat, longitude = lon,
+                        start_date = start_date, end_date = end_date,
+                        daily = "temperature_2m_max,temperature_2m_min,shortwave_radiation_sum",
+                        timezone = "Europe/Brussels"))
+meteo_data <- fromJSON(content(res, "text"))$daily
+meteo_df <- as.data.frame(meteo_data) %>%
+  rename(Date = time, Tmax = temperature_2m_max,
+         Tmin = temperature_2m_min, Radiation = shortwave_radiation_sum) %>%
+  mutate(Jours = 1:n(),
+         svpTmax = 6.1078 * exp(17.269 * Tmax / (237.3 + Tmax)) * 0.10,
+         svpTmin = 6.1078 * exp(17.269 * Tmin / (237.3 + Tmin)) * 0.10,
+         VPDcalc = 0.75 * (svpTmax - svpTmin) * 10)
 
 facteur_externe <- data.frame(
-  Jours = c(                   # Jours (30 à 60)
-    30, 31, 32, 33, 34, 35, 
-    36, 37, 38, 39, 40, 41, 
-    42, 43, 44, 45, 46, 47, 
-    48, 49, 50, 51, 52, 53, 
-    54, 55, 56, 57, 58, 59, 60
-  ), 
+  # Durée de la simulation (jours)
+  Jours = 30:60, 
   
   # Radiation (MJ/m2)
-  Radiation = c( #Chercher vraies données ()
+  Radiation = c( 
     27, 27, 14, 24, 23, 21, 
     23, 25, 17, 14, 26, 26, 
     10, 26, 30, 27, 27, 29, 
@@ -102,7 +114,7 @@ facteur_externe <- data.frame(
   ),
   
   # Tmax (°C)
-  Tmax = c( #Chercher vraies données ()
+  Tmax = c( 
     32.3, 31.0, 26.6, 26.0, 26.6, 29.5, 
     30.8, 32.5, 32.3, 25.2, 27.8, 28.2, 
     27.3, 28.6, 28.6, 28.3, 27.6, 31.0, 
@@ -111,7 +123,7 @@ facteur_externe <- data.frame(
   ),
   
   # Tmin (°C)
-  Tmin = c( #Chercher vraies données ()
+  Tmin = c( 
     16.4, 15.8, 15.6, 10.0, 11.7, 13.0, 
     16.5, 13.8, 16.7, 16.7, 15.8, 12.8, 
     17.3, 11.3, 13.7, 13.4, 13.7, 12.2, 
@@ -120,7 +132,7 @@ facteur_externe <- data.frame(
   ),
   
   # VPDobs (hPa)
-  VPDobs = c( #Chercher vraies données ()
+  VPDobs = c( 
     19, 17, 16, 14, 12, 15, 
     18, 19, 23, 21, 15, 14, 
     20, 16, 17, 17, 15, 15, 
@@ -159,6 +171,20 @@ facteur_externe$VPDcalc <- calc_VPDcalc(
   VPDfrac  = VPDfrac
 )
 
+###############################################################################
+# Choix de la source de données : "reel" ou "artificiel"
+###############################################################################
+data_source <- "artificiel"    # <- mettre "artificiel" si on veux le jeu généré
+
+if (data_source == "reel") {
+  facteur_externe <- meteo_df %>%
+    select(Jours, Radiation, Tmax, Tmin, VPDcalc)
+} else if (data_source == "artificiel") {
+  facteur_externe <- facteur_externe %>%
+    select(Jours, Radiation, Tmax, Tmin, VPDcalc)
+} else {
+  stop("data_source doit être 'reel' ou 'artificiel'")
+}
 
 ###############################################################################
 # Modèle
