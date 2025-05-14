@@ -85,7 +85,7 @@ expansion_foliaire2
 ###############################################################################
 # Données météo réelles (Merci Alice)
 lat <- 50.666265; lon <- 4.622322                              # Localisation de la zone d'étude : 50.666265 ; 4.622322 = batiment De serres
-start_date <- "2024-04-15"; end_date <- "2024-08-22"           # Période de simulation
+start_date <- "2024-06-01"; end_date <- "2024-06-30"           # Période de simulation
 res <- GET("https://archive-api.open-meteo.com/v1/archive",    # Obtention des données de la station météo belge
            query = list(latitude = lat, longitude = lon,
                         start_date = start_date, end_date = end_date,
@@ -368,19 +368,11 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     ## 9) Mise à jour des ES horizon par horizon
     if (i < n_days) {
       if (Pot_Supply1 + Pot_Supply2 > 0) {
-        ES1[i+1] <- ES1[i] - (
-          (of1_c1 / Pot_Supply1) * transp1 +
-            (of1_c2 / Pot_Supply2) * transp2
-        )
-        ES2[i+1] <- ES2[i] - (
-          (of2_c1 / Pot_Supply1) * transp1 +
-            (of2_c2 / Pot_Supply2) * transp2
-        )
-        ES3[i+1] <- ES3[i] - (
-          (of3_c1 / Pot_Supply1) * transp1 +
-            (of3_c2 / Pot_Supply2) * transp2
-        )
-      } else {
+        ES1[i+1] <- ES1[i] - ((of1_c1 / Pot_Supply1) * transp1 + (of1_c2 / Pot_Supply2) * transp2)
+        ES2[i+1] <- ES2[i] - ((of2_c1 / Pot_Supply1) * transp1 + (of2_c2 / Pot_Supply2) * transp2)
+        ES3[i+1] <- ES3[i] - ((of3_c1 / Pot_Supply1) * transp1 + (of3_c2 / Pot_Supply2) * transp2)
+        } 
+      else {
         ES1[i+1] <- ES1[i]
         ES2[i+1] <- ES2[i]
         ES3[i+1] <- ES3[i]
