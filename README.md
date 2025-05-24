@@ -2,6 +2,8 @@
 
 Dans ce repertoire, vous trouverez mon rapport pour le cours de modélisation biologique ainsi que tous les fichiers de code utilisés pour la construction de ce projet.
 
+\- Dans un premier temps, il faut démarrer l'environnement R avec le fichier `rapport-final-Max-labb.Rproj` pour s'assurer d'être dans le bon environnement et d'avoir tous les fichiers nécessaires.
+
 \- Le rapport final est en format RMD et est nommé `Rapport_final_Maxime_CORNEZ.Rmd`.
 
 \- Le code brut utilisé pour mon rapport est dans le fichier `Apsim_double_culture.R`.
