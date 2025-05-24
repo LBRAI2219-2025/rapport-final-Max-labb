@@ -83,7 +83,7 @@ expansion_foliaire2
 ###############################################################################
 # Facteurs externes 
 ###############################################################################
-# Données météo réelles (Merci Alice)
+# Données météo réelles 
 lat <- 50.666265; lon <- 4.622322                              # Localisation de la zone d'étude : 50.666265 ; 4.622322 = batiment De serres
 start_date <- "2024-06-01"; end_date <- "2024-06-30"           # Période de simulation
 res <- GET("https://archive-api.open-meteo.com/v1/archive",    # Obtention des données de la station météo belge
@@ -193,8 +193,8 @@ if (data_source == "reel") {
 # Modèle
 ###############################################################################
 # Densite des deux cultures
-Densite1 <- 0.5 # Densité de la culture 1 (Draye)
-Densite2 <- 1-Densite1 # Densité de la culture 2 (Draye)
+Densite1 <- 0.5 # Densité de la culture 1 
+Densite2 <- 1-Densite1 # Densité de la culture 2 
 
 simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2) {
   n_days <- nrow(facteur_externe)
@@ -281,7 +281,7 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     results$rdepth[i]  <- rdepth
     results$rdepth2[i] <- rdepth2
     
-    ## 2) Offres potentielles par horizon, par culture
+    ## 2) Offres potentielles par horizon [1 à 3], par culture [c1 ; c2]
     of1_c1 <- ifelse(rdepth  >= soil_params$Epaisseur[1], 1, rdepth  / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
     of2_c1 <- ifelse(rdepth  <= soil_params$Epaisseur[1], 0,
                      ifelse(rdepth > soil_params$Epaisseur[1]+soil_params$Epaisseur[2],
@@ -387,7 +387,7 @@ resultats_two <- simulate_two_cultures(facteur_externe, soil_params, culture_par
 print(resultats_two)
 
 ###############################################################################
-# Graphiques 
+# Graphiques à enlever pour rendu final
 ###############################################################################
 
 # Graphe O/D
