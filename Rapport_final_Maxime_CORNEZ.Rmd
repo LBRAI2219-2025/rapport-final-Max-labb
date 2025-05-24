@@ -38,8 +38,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 # Matériel et méthodes
 
-> Courte description des modèles utilisé, description du schéma de modélisation, description des packages employés et des méthodes d'analyse choisies
+> Courte description des modèles utilisé, description du schéma de modélisation, description des packages employés et des méthodes d'analyse choisies (à enlever)
 
+## Packages utilisés
 ```{r package-setup, include=TRUE, message=FALSE, warning=FALSE}
 # Packages requis
 library(readxl)
@@ -48,7 +49,220 @@ library(tidyr)
 library(ggplot2)
 library(jsonlite)
 library(httr)
+```
 
+## Données d'entrée
+### Paramètres des cultures
+```{r paramètres de culture, include=TRUE}
+
+mais <- list(
+  RUE               = 1.6,   # Radiation Use Efficiency [g/MJ]
+  TEc               = 9,     # Coefficient d'efficience de la transpiration [Pa]
+  VPR               = 20,    # Vitesse production de racines [mm/jour]
+  CroissPotLAI      = 0.1,   # Croissance potentielle du LAI 
+  k                 = 0.45,  # Coefficient d'extinction de la lumière
+  LAI_initial       = 1.5,   
+  Biomasse_initiale = 45     
+)
+
+sorgho <- list(
+  RUE               = 1.25,  # Radiation Use Efficiency [g/MJ]
+  TEc               = 9,     # Coefficient d'efficience de la transpiration [Pa]
+  VPR               = 20,    # Vitesse production de racines [mm/jour]
+  CroissPotLAI      = 0.1,   # Croissance potentielle du LAI 
+  k                 = 0.45,  # Coefficient d'extinction de la lumière
+  LAI_initial       = 1.5,   
+  Biomasse_initiale = 45     
+)
+
+haricot <- list(
+  RUE               = 1.5,  # Radiation Use Efficiency [g/MJ]
+  TEc               = 8,     # Coefficient d'efficience de la transpiration [Pa]
+  VPR               = 15,    # Vitesse production de racines [mm/jour]
+  CroissPotLAI      = 0.08,  # Croissance potentielle du LAI 
+  k                 = 0.4,   # Coefficient d'extinction de la lumière
+  LAI_initial       = 1.2,   
+  Biomasse_initiale = 30     
+)
+
+courge <- list(
+  RUE               = 1.4,  # Radiation Use Efficiency [g/MJ]
+  TEc               = 7,     # Coefficient d'efficience de la transpiration [Pa]
+  VPR               = 12,    # Vitesse production de racines [mm/jour]
+  CroissPotLAI      = 0.09,  # Croissance potentielle du LAI 
+  k                 = 0.5,   # Coefficient d'extinction de la lumière
+  LAI_initial       = 1.3,   
+  Biomasse_initiale = 35
+)
+
+pois <- list(
+  RUE               = 1.3,  # Radiation Use Efficiency [g/MJ]
+  TEc               = 6,     # Coefficient d'efficience de la transpiration [Pa]
+  VPR               = 10,    # Vitesse production de racines [mm/jour]
+  CroissPotLAI      = 0.07,  # Croissance potentielle du LAI 
+  k                 = 0.35,  # Coefficient d'extinction de la lumière
+  LAI_initial       = 1.1,   
+  Biomasse_initiale = 25     
+)
+
+salade <- list(
+  RUE               = 1.2,  # Radiation Use Efficiency [g/MJ]
+  TEc               = 5,     # Coefficient d'efficience de la transpiration [Pa]
+  VPR               = 8,     # Vitesse production de racines [mm/jour]
+  CroissPotLAI      = 0.06,  # Croissance potentielle du LAI 
+  k                 = 0.3,   # Coefficient d'extinction de la lumière
+  LAI_initial       = 1.0,   
+  Biomasse_initiale = 20     
+)
+```
+### Paramètres du sol
+```{r paramètres du sol, include=TRUE}
+
+soil_params <- data.frame(
+  Horizon     = c(1, 2, 3),
+  Epaisseur   = c(300, 300, 300),   # mm
+  li          = c(50,  50,  50),    # Limite inférieure d'eau
+  ls          = c(100, 100, 100),   # Limite supérieure d'eau
+  es          = c(100, 100, 100),   # Eau disponible dans sol (= sw)
+  es_h        = c(40, 30, 30),      # Eau disponible dans sol par horizon ; es_h1+es_h2+es_h3 = es
+  kl          = c(0.06, 0.05, 0.05) # Taux d'extraction [mm/jour]
+)
+```
+
+### Expansion foliaire
+```{r expansion foliaire, include=TRUE}
+# Culture 1
+expansion_foliaire <- data.frame(
+  OD  = c(0.5, 1.5, 4), # Offre sur demande
+  CEF = c(0,   1,   1)  # Coefficient d'expansion foliaire
+)
+
+# Culture 2
+expansion_foliaire2 <- data.frame(
+  OD  = c(0.4, 1.0, 3.5), # Offre sur demande
+  CEF = c(0,   0.8, 1)    # Coefficient d'expansion foliaire
+
+)
+```
+
+### Paramètres météo
+```{r chargement des données météo, include=TRUE, message=FALSE, warning=FALSE}
+
+# Données météo réelles 
+lat <- 50.666265; lon <- 4.622322   # Localisation de la zone d'étude : 50.666265 ; 4.622322 = batiment De serres
+start_date <- "2024-06-01"; end_date <- "2024-06-30"           # Période de simulation
+res <- GET("https://archive-api.open-meteo.com/v1/archive",    # Obtention des données de la station météo belge
+           query = list(latitude = lat, longitude = lon,
+                        start_date = start_date, end_date = end_date,
+                        daily = "temperature_2m_max,temperature_2m_min,shortwave_radiation_sum",
+                        timezone = "Europe/Brussels"))
+meteo_data <- fromJSON(content(res, "text"))$daily             # Importation du fichier de données JSON
+
+meteo_df <- as.data.frame(meteo_data) %>%
+  rename(Date = time, Tmax = temperature_2m_max,
+         Tmin = temperature_2m_min, Radiation = shortwave_radiation_sum) %>%
+  
+  mutate(Jours = 1:n(),  # fonctions pour calculer vdp                                    
+         svpTmax = 6.1078 * exp(17.269 * Tmax / (237.3 + Tmax)) * 0.10,
+         svpTmin = 6.1078 * exp(17.269 * Tmin / (237.3 + Tmin)) * 0.10,
+         VPDcalc = 0.75 * (svpTmax - svpTmin) * 10)
+
+# Génération de données artificielles
+
+facteur_externe <- data.frame(
+  # Durée de la simulation (jours)
+  Jours = 30:60, 
+  
+  # Radiation (MJ/m2)
+  Radiation = c( 
+    27, 27, 14, 24, 23, 21, 
+    23, 25, 17, 14, 26, 26, 
+    10, 26, 30, 27, 27, 29, 
+    27, 26, 25, 23, 14, 25, 
+    22, 20, 22, 24, 28, 25, 25
+  ),
+  
+  # Tmax (°C)
+  Tmax = c( 
+    32.3, 31.0, 26.6, 26.0, 26.6, 29.5, 
+    30.8, 32.5, 32.3, 25.2, 27.8, 28.2, 
+    27.3, 28.6, 28.6, 28.3, 27.6, 31.0, 
+    35.0, 34.3, 31.2, 32.7, 29.9, 30.8, 
+    31.2, 28.4, 27.7, 31.4, 33.0, 33.2, 32.7
+  ),
+  
+  # Tmin (°C)
+  Tmin = c( 
+    16.4, 15.8, 15.6, 10.0, 11.7, 13.0, 
+    16.5, 13.8, 16.7, 16.7, 15.8, 12.8, 
+    17.3, 11.3, 13.7, 13.4, 13.7, 12.2, 
+    14.7, 20.4, 15.5, 17.9, 18.4, 16.0, 
+    16.1, 18.0, 14.9, 16.0, 16.2, 17.2, 18.3
+  ),
+  
+  # VPDobs (hPa)
+  VPDobs = c( 
+    19, 17, 16, 14, 12, 15, 
+    18, 19, 23, 21, 15, 14, 
+    20, 16, 17, 17, 15, 15, 
+    16, 17, 18, 21, 22, 17, 
+    18, 20, 18, 19, 19, 20, 21
+  )
+)
+
+# Fonction pour calculer saturated vapour pressure (SVP)
+svp <- function(T) { # satured vapour pressure [kPa]
+  6.1078 * exp(17.269 * T / (237.3 + T)) * 0.10
+}
+
+# Application à Tmax
+facteur_externe$svpTmax <- svp(facteur_externe$Tmax) # pression saturante à Tmax
+
+# Application à Tmin
+facteur_externe$svpTmin <- svp(facteur_externe$Tmin) # pression saturante à Tmin
+
+VPDfrac <- 0.75 # par défaut on prend 0.75
+
+
+# Fonction pour calculer VPDcalc
+calc_VPDcalc <- function(svpTmax, svpTmin, VPDfrac) {
+  VPDfrac * (svpTmax - svpTmin)*10
+}
+
+# Ajout de la colonne VPDcalc
+facteur_externe$VPDcalc <- calc_VPDcalc(
+  svpTmax  = facteur_externe$svpTmax,
+  svpTmin  = facteur_externe$svpTmin,
+  VPDfrac  = VPDfrac
+)
+
+###############################################################################
+# Choix de la source de données : "reel" ou "artificiel" (switch)
+###############################################################################
+data_source <- "artificiel"    # mettre "artificiel" si on veux le jeu généré
+
+if (data_source == "reel") {
+  facteur_externe <- meteo_df %>%
+    select(Jours, Radiation, Tmax, Tmin, VPDcalc)
+} else if (data_source == "artificiel") {
+  facteur_externe <- facteur_externe %>%
+    select(Jours, Radiation, Tmax, Tmin, VPDcalc)
+} else {
+  stop("data_source doit être 'reel' ou 'artificiel'")
+}
+```
+
+### Densite des deux cultures
+
+```{r densité des cultures, include=TRUE}
+Densite1 <- 0.5 # Densité de la culture 1 
+Densite2 <- 1-Densite1 # Densité de la culture 2 
+```
+
+## Modèles utilisés
+```{r chargement-des-modèles, include=TRUE, message=FALSE, warning=FALSE}
+source("apsim_mono.R")  # Apsim monoculture
+source("apsim_duo.R")   # Apsim double culture
 ```
 
 # Résultats
