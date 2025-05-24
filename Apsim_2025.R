@@ -1,5 +1,5 @@
 # LBRAI2219 - Modélisation des systèmes biologiques (2025)
-#Code inspiré par le modèle APSIM fait par Alice Falzon et Maxime Cornez 
+#Code inspiré par le modèle APSIM, fait par Alice Falzon et Maxime Cornez 
 ###############################################################################
 # Chargement des packages
 ###############################################################################
