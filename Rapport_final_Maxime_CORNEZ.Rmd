@@ -1,8 +1,43 @@
 ---
-title: "template_rmarkdown"
-output: html_document
-date: "2023-02-21"
+title: "Rapport_final_Maxime_CORNEZ"
+author: "Maxime CORNEZ"
+date: "2025-05-24"
+output:
+  html_document:          # options for html layout
+    smart: false          # font option
+    code_folding: show    # show/hide the code chunks
+    fig_height: 5         # default figure height 
+    fig_width: 6          # default figure width 
+    highlight: tango      # code style
+    theme: united         # document style
+    toc: yes              # include a table of content (toc)
+    number_sections: yes  # numbered table of content
+    toc_depth: 3          # the level of sections included in the toc
+    toc_float: yes        # floating toc (facilitates the document navigation)
 ---
+
+```{r package-setup, include=FALSE}
+# Liste des packages nécessaires
+required_pkgs <- c(
+  "readxl",
+  "dplyr",
+  "tidyr",
+  "ggplot2",
+  "jsonlite",
+  "httr"
+)
+
+# Détection des packages manquants
+missing_pkgs <- required_pkgs[! required_pkgs %in% installed.packages()[, "Package"]]
+
+# Installation automatique si besoin
+if (length(missing_pkgs) > 0) {
+  install.packages(missing_pkgs)
+}
+
+# Chargement silencieux de tous les packages
+invisible(lapply(required_pkgs, library, character.only = TRUE))
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
