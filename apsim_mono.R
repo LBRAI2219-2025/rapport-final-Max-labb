@@ -30,7 +30,13 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
     Pot_Supply = numeric(n_days),
     Pot_Demand = numeric(n_days),
     Transpiration = numeric(n_days),
-    LAI = numeric(n_days)
+    LAI = numeric(n_days),
+    I = numeric(n_days),
+    Biomasse_1 = numeric(n_days),
+    Biomasse_2 = numeric(n_days),
+    O_D = numeric(n_days),
+    Biomasse_reelle = numeric(n_days),
+    Biomasse_cumulee = numeric(n_days)
   )
   results$LAI[1] <- LAI_dyn[1]
   
@@ -116,31 +122,17 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
     }
   }
   
+  # Calcul des indices et biomasses après simulation
+  results$I <- 1 - exp(-culture_params$k * results$LAI)
+  results$Biomasse_1 <- (results$Pot_Supply * culture_params$TEc) / (facteur_externe$VPDcalc / 10)
+  results$Biomasse_2 <- facteur_externe$Radiation * culture_params$RUE * results$I
+  results$O_D <- ifelse(results$Pot_Demand == 0, 0, results$Pot_Supply / results$Pot_Demand)
+  results$Biomasse_reelle <- ifelse(results$O_D > 1, results$Biomasse_2, results$Biomasse_1)
+  results$Biomasse_cumulee <- culture_params$Biomasse_initiale + cumsum(results$Biomasse_reelle)
+  
   return(results)
 }
 
 # Appel de la fonction simulate
-resultats <- simulate(facteur_externe, soil_params, culture_params, expansion_foliaire)
-print(resultats)
-
-###############################################################################
-# Calcul de la biomasse
-###############################################################################
-
-resultats$I <- 1-exp(-culture_params$k*resultats$LAI)
-
-# Calcul de la biomasse 
-resultats$Biomasse_1 <- (resultats$Pot_Supply * culture_params$TEc)/ (facteur_externe$VPDcalc/10) # eau limitante 
-
-resultats$Biomasse_2 <- facteur_externe$Radiation * culture_params$RUE * resultats$I # lumière limitante
-
-resultats$O_D <- ifelse(resultats$Pot_Demand == 0, 0,
-                        resultats$Pot_Supply / resultats$Pot_Demand)
-
-resultats$Biomasse_reelle <- ifelse(
-  test = resultats$O_D > 1,
-  yes  = resultats$Biomasse_2,  # BioRadn
-  no   = resultats$Biomasse_1   # BioEau
-)
-
-resultats$Biomasse_cumulee <- culture_params$Biomasse_initiale + cumsum(resultats$Biomasse_reelle)
+# resultats <- simulate(facteur_externe, soil_params, culture_params, expansion_foliaire)
+# print(resultats)
