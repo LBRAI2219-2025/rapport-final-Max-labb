@@ -1,5 +1,6 @@
 ---
-title: "Rapport_final_Maxime_CORNEZ"
+title: "LBRAI2219 - Modélisation des systèmes biologiques"
+subtitle: "Modèle APSIM pour deux cultures"
 author: "Maxime CORNEZ"
 date: "2025-05-24"
 output:
@@ -16,78 +17,62 @@ output:
     toc_float: yes        # floating toc (facilitates the document navigation)
 ---
 
-```{r package-setup, include=FALSE}
-# Liste des packages nécessaires
-required_pkgs <- c(
-  "readxl",
-  "dplyr",
-  "tidyr",
-  "ggplot2",
-  "jsonlite",
-  "httr"
-)
-
-# Détection des packages manquants
-missing_pkgs <- required_pkgs[! required_pkgs %in% installed.packages()[, "Package"]]
-
-# Installation automatique si besoin
-if (length(missing_pkgs) > 0) {
-  install.packages(missing_pkgs)
-}
-
-# Chargement silencieux de tous les packages
-invisible(lapply(required_pkgs, library, character.only = TRUE))
-```
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Modélisation des systèmes biologiques
-
-> Liste des auteurs du rapport. Voir consignes pour plus de détails
-
-Vous pouvez choisir d'employer ce document pour votre rapport final, si vous decider de le faire en R
-
-
-## Résumé
+# Résumé
 
 > Résumé du travail, reprenant les résultats principaux et les perspectives. 
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-## Introduction
+# Introduction
+## Description du problème 
 
-> Description du problème, de l'état de lart sur le sujet, de l'importance de l'approche par modélisation
+## État de l’art
+
+## Importance de l’approche par modélisation
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-## Matériel et méthodes
+# Matériel et méthodes
 
 > Courte description des modèles utilisé, description du schéma de modélisation, description des packages employés et des méthodes d'analyse choisies
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+```{r package-setup, include=TRUE, message=FALSE, warning=FALSE}
+# Packages requis
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(jsonlite)
+library(httr)
 
-## Résultats
+```
+
+# Résultats
 
 > Présentation des resultats des simulations
 
-### Modélisation de l’architecture racinaire
+### Modélisation de l’architecture racinaire (bah non du coup)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 
-### Modélisation de l’évolution de la culture
+### Modélisation de l’évolution de la culture (bah oui)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-### Couplage entre le modèle racinaire et le modèle de culture
+### Couplage entre le modèle racinaire et le modèle de culture (remplacer par couplage de 2 cultures)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-### Analyse de l’interaction entre rendements et racines
+### Analyse de l’interaction entre rendements et racines (kl ?)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
-## Contributions des auteurs
-> Description de la contribution des différents auteurs du rapport. Voir les consignes pour plus de détail. 
+# Collaboration 
+## J'ai aidé 
+
+## J'ai été aidé par 
