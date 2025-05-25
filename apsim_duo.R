@@ -5,7 +5,7 @@
 # Modèle
 ###############################################################################
 
-simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2) {
+simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2) {
   n_days <- nrow(facteur_externe)
   
   # Initialisation du sol (réserves d'eau pour chaque horizon)
