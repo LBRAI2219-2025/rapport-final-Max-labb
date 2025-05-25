@@ -1,13 +1,8 @@
 ---
 title: "LBRAI2219 - Modélisation des systèmes biologiques"
 author: "Maxime CORNEZ"
-date: "2025-05-24"
+date: "24/05/2024"
 output:
-  pdf_document:
-    toc: true
-    number_sections: true
-    latex_engine: xelatex
-    keep_tex: true
   html_document:
     smart: false
     code_folding: show
@@ -19,6 +14,11 @@ output:
     number_sections: true
     toc_depth: 3
     toc_float: true
+  pdf_document:
+    toc: true
+    number_sections: true
+    latex_engine: xelatex
+    keep_tex: true
 bibliography: ressources/LBRAI2219.bib
 subtitle: Modèle APSIM pour deux cultures
 ---
@@ -71,7 +71,7 @@ Le modèle APSIM (pour Agricultural Production Systems sIMulator) est un modèle
 
 L’étude repose sur une modélisation d'APSIM en combinant deux cultures (maïs et autre) en interculture. Le modèle APSIM est utilisé pour simuler la croissance des cultures, la dynamique du sol et les interactions entre les plantes et l'environnement.
 
--   **APSIM mono** : Ce modèle a pour but de simuler la production de biomasse chez le maïs en prenant en compte à la fois les contraintes hydriques et lumineuses. Il s’appuie d’une part sur les équations de Monteith, qui relient la croissance à la quantité de rayonnement intercepté, et d’autre part sur le concept d’efficience de transpiration, qui traduit la conversion de l’eau prélevée en biomassе sous stress hydrique. Ensemble, ces deux approches permettent de quantifier l’impact combiné de la lumière et de la disponibilité en eau sur le développement de la culture. [@draye; @hammer_computer_2009]\
+-   **APSIM mono** : Ce modèle a pour but de simuler la production de biomasse chez le maïs en prenant en compte à la fois les contraintes hydriques et lumineuses. Il s’appuie d’une part sur les équations de Monteith, qui relient la croissance à la quantité de rayonnement intercepté, et d’autre part sur le concept d’efficience de transpiration, qui traduit la conversion de l’eau prélevée en biomassе sous stress hydrique. Ensemble, ces deux approches permettent de quantifier l’impact combiné de la lumière et de la disponibilité en eau sur le développement de la culture. [@draye_practical, @hammer_computer_2009]\
     La version présentée ici a été légèrement remise en forme par Alice Falzon et moi-même afin d'en améliorer l'érgonomie et la facilité d'utilisation.
 
 -   **APSIM duo** : Ce modèle est une extension du modèle mono, qui permet de simuler la production de biomasse pour deux cultures en interculture. Il prend en compte les interactions entre les deux cultures pour l'eau et la profondeur des racines. Le modèle est capable de simuler la croissance des deux cultures en tenant compte des facteurs climatiques et hydriques, ainsi que des interactions entre les plantes et le sol. Le modèle inclut un "arbitre" déterminant quelle culture recevra prioritairement l'eau en cas de déficit hydrique, cet arbitre est inclu directement dans la fonction du modèle.\
@@ -82,7 +82,7 @@ Le plan de modélisation est structuré comme suit :
 
 1.  Obtention des paramètres de cultures pour chaque culture désirée. Puis des paramètres du sol et de l'expansion foliaire
 
-2.  Obtention des paramètres météo, soit via un jeu de données généré artificiellement, soit via un jeu de données réelles obtenu via Open-Meteo [@open-meteo__nodate] ; sélection de la source via le switch installé dans le code.
+2.  Obtention des paramètres météo, soit via un jeu de données généré artificiellement, soit via un jeu de données réelles obtenu via Open-Meteo [@open-meteo_2025] ; sélection de la source via le switch installé dans le code.
 
 3.  Fixation des densités de culture.
 
