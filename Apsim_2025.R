@@ -292,6 +292,7 @@ resultats$Biomasse_cumulee <- culture_params$Biomasse_initiale + cumsum(resultat
 ###############################################################################
 # Graphiques 
 ###############################################################################
+resultats$Pot_Supply >= resultats$Transpiration
 
 plot(resultats$Jour, resultats$O_D, 
      type = "o", pch = 15, col = "magenta",
