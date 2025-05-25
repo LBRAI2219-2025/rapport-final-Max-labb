@@ -3,18 +3,23 @@ title: "LBRAI2219 - Modélisation des systèmes biologiques"
 subtitle: "Modèle APSIM pour deux cultures"
 author: "Maxime CORNEZ"
 date: "2025-05-24"
+bibliography: ressources/LBRAI2219.bib
+csl: ressources/apa-annotated-bibliography.csl
+#nocite:     |
+#  @*
 output:
-  html_document:          # options for html layout
-    smart: false          # font option
-    code_folding: show    # show/hide the code chunks
-    fig_height: 5         # default figure height 
-    fig_width: 6          # default figure width 
-    highlight: tango      # code style
-    theme: united         # document style
-    toc: yes              # include a table of content (toc)
-    number_sections: yes  # numbered table of content
-    toc_depth: 3          # the level of sections included in the toc
-    toc_float: yes        # floating toc (facilitates the document navigation)
+  html_document:                # options for html layout
+    smart: false                # font option
+    code_folding: show          # show/hide the code chunks
+    fig_height: 5               # default figure height 
+    fig_width: 6                # default figure width 
+    highlight: tango            # code style
+    theme: united               # document style
+    toc: yes                    # include a table of content (toc)
+    number_sections: yes        # numbered table of content
+    toc_depth: 3                # the level of sections included in the toc
+    toc_float: yes              # floating toc (facilitates the document navigation)
+
 ---
 
 ```{r setup, include=FALSE}
@@ -290,3 +295,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 ## J'ai aidé 
 
 ## J'ai été aidé par 
+
+# Références
+
