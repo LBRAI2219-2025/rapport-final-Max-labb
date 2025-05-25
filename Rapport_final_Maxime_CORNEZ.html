@@ -1747,6 +1747,13 @@ interactions avec les champignons mycorhiziens pour améliorer
 l’absorption hydrique et minérale. Ces traits racinaires combinés
 forment un arsenal adaptatif essentiel pour maintenir la croissance et
 la productivité en conditions de déficit hydrique<span class="citation">(Munns, 2002)</span>.</p>
+<p><br />
+Ce projet traitera plus spécifiquement de la permaculture et des
+intercultures, techniques visant à maximiser l’espace disponible et les
+ressources pour deux cultures ou plus occupant le même espace. Ces
+techniques sont de plus en plus populaires dans les systèmes agricoles
+durables, car elles permettent de diversifier les cultures, d’améliorer
+la santé des sols et de réduire les besoins en intrants chimiques <span class="citation">(Brooker et al., 2015)</span>.</p>
 <p>Le maïs (<em>Zea mays L.</em>) est l’une des céréales les plus
 cultivées au monde, environ 850 millions de tonnes produites par an sur
 approximativement 162 millions d’hectares <span class="citation">(Yara,
@@ -1758,12 +1765,6 @@ pertes de rendement importantes. Son réseau racinaire dense et profond,
 pouvant aller jusqu’à 1m80, lui permet une captation efficace de l’eau
 et des nutriments <span class="citation">(Barnabás et al.,
 2008)</span>.</p>
-<p>Ce projet traitera plus spécifiquement de la permaculture et des
-intercultures, techniques visant à maximiser l’espace disponible et les
-ressources pour deux cultures ou plus occupant le même espace. Ces
-techniques sont de plus en plus populaires dans les systèmes agricoles
-durables, car elles permettent de diversifier les cultures, d’améliorer
-la santé des sols et de réduire les besoins en intrants chimiques <span class="citation">(Brooker et al., 2015)</span>.</p>
 <p>Il serait intéressant d’optimiser ces surfaces de culture en alliant
 les plants de maïs avec d’autres plantes pouvant bénéficier de cet
 espace. La sélection des bonnes variétés de plante entrainera un
@@ -1800,16 +1801,76 @@ tenant compte des interactions entre les plantes, le sol et
 l’environnement, sans devoir nécessairement passer par une étape
 expérimentale longue et coûteuse <span class="citation">(Tremblay &amp;
 Wallach, 2004)</span>.</p>
+<p>Le modèle APSIM (pour Agricultural Production Systems sIMulator) est
+un modèle de simulation de culture qui permet de simuler la croissance
+des cultures, la dynamique du sol et les interactions entre les plantes
+et l’environnement. Il a été développé en 1995 par une équipe
+multiuniversitaire et est encore utilisé et amélioré à ce jour. APSIM
+est un modèle modulaire, ce qui signifie qu’il peut être adapté à
+différents systèmes agricoles et à différentes conditions
+environnementales. Il est capable de simuler la croissance des cultures
+en tenant compte des facteurs climatiques, hydriques et nutritionnels,
+ainsi que des interactions entre les plantes et le sol <span class="citation">(Keating et al., 2003; McCown et al.,
+1996)</span>.<br />
+</p>
 </div>
 </div>
 <div id="matériel-et-méthodes" class="section level1" number="3">
 <h1><span class="header-section-number">3</span> Matériel et
 méthodes</h1>
-<blockquote>
-<p>Courte description des modèles utilisé, description du schéma de
-modélisation, description des packages employés et des méthodes
-d’analyse choisies (à enlever)</p>
-</blockquote>
+<p>L’étude repose sur une modélisation d’APSIM en combinant deux
+cultures (maïs et autre) en interculture. Le modèle APSIM est utilisé
+pour simuler la croissance des cultures, la dynamique du sol et les
+interactions entre les plantes et l’environnement.</p>
+<ul>
+<li><p><strong>APSIM mono</strong> : Ce modèle a pour but de simuler la
+production de biomasse chez le maïs en prenant en compte à la fois les
+contraintes hydriques et lumineuses. Il s’appuie d’une part sur les
+équations de Monteith, qui relient la croissance à la quantité de
+rayonnement intercepté, et d’autre part sur le concept d’efficience de
+transpiration, qui traduit la conversion de l’eau prélevée en biomassе
+sous stress hydrique. Ensemble, ces deux approches permettent de
+quantifier l’impact combiné de la lumière et de la disponibilité en eau
+sur le développement de la culture. <span class="citation">(Draye, n.d.;
+Hammer, 2009)</span><br />
+La version présentée ici a été légèrement remise en forme par Alice
+Falzon et moi-même afin d’en améliorer l’érgonomie et la facilité
+d’utilisation.</p></li>
+<li><p><strong>APSIM duo</strong> : Ce modèle est une extension du
+modèle mono, qui permet de simuler la production de biomasse pour deux
+cultures en interculture. Il prend en compte les interactions entre les
+deux cultures pour l’eau et la profondeur des racines. Le modèle est
+capable de simuler la croissance des deux cultures en tenant compte des
+facteurs climatiques et hydriques, ainsi que des interactions entre les
+plantes et le sol. Le modèle inclut un “arbitre” déterminant quelle
+culture recevra prioritairement l’eau en cas de déficit hydrique, cet
+arbitre est inclu directement dans la fonction du modèle.<br />
+Par simplicité, l’hypothèse que les deux cultures n’ont pas
+d’intéractions au niveau de la lumière a été faite, ce qui signifie que
+la lumière est répartie entre les deux cultures selon la
+disponibilité.<br />
+La conversion de APSIM mono vers duo a représenté la plus grande partie
+de ce projet.</p></li>
+</ul>
+<p>Le plan de modélisation est structuré comme suit :</p>
+<ol style="list-style-type: decimal">
+<li><p>Obtention des paramètres de cultures pour chaque culture désirée.
+Puis des paramètres du sol et de l’exansion foliaire</p></li>
+<li><p>Obtention des paramètres météo, soit via un jeu de données généré
+artificiellement, soit via un jeu de données réelles obtenu via
+Open-Meteo <span class="citation">(<em>🌤️ <span>Free</span>
+<span>Open</span>-<span>Source</span> <span>Weather</span>
+<span>API</span> <span></span>
+<span>Open</span>-<span>Meteo</span>.com</em>, n.d.)</span> ; sélection
+de la source via le switch installé dans le code.</p></li>
+<li><p>Fixation des densités de culture</p></li>
+<li><p>Collecte et simulation des données climatiques (Open-Meteo). 2.
+Simulation du développement racinaire avec CRootBox. 3. Analyse
+hydraulique avec MARSHAL pour caractériser l’efficience d’absorption de
+l’eau. 4. Simulation de la production de biomasse avec APSIM. 5. Analyse
+de sensibilité pour évaluer l’impact des paramètres environnementaux et
+physiologiques.</p></li>
+</ol>
 <div id="packages-utilisés" class="section level2" number="3.1">
 <h2><span class="header-section-number">3.1</span> Packages
 utilisés</h2>
@@ -2098,6 +2159,12 @@ par</h2>
 <div id="références" class="section level1 unnumbered">
 <h1 class="unnumbered">Références</h1>
 <div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0" line-spacing="2">
+<div id="ref-open-meteo__nodate" class="csl-entry">
+<em>🌤️ <span>Free</span> <span>Open</span>-<span>Source</span>
+<span>Weather</span> <span>API</span> <span></span>
+<span>Open</span>-<span>Meteo</span>.com</em>. (n.d.). Retrieved May 7,
+2025, from <a href="https://open-meteo.com/">https://open-meteo.com/</a>
+</div>
 <div id="ref-barnabas_effect_2008" class="csl-entry">
 Barnabás, B., Jäger, K., &amp; Fehér, A. (2008). The effect of drought
 and heat stress on reproductive processes in cereals. <em>Plant, Cell
@@ -2131,6 +2198,9 @@ maize by promoting the secretion of flavonoids and abundance of
 <span>Bradyrhizobium</span> in rhizosphere. <em>Frontiers in Plant
 Science</em>, <em>13</em>. <a href="https://doi.org/10.3389/fpls.2022.957336">https://doi.org/10.3389/fpls.2022.957336</a><div class="csl-block">Publisher: Frontiers</div>
 </div>
+<div id="ref-draye_practical_nodate" class="csl-entry">
+Draye, X. (n.d.). <em>Practical notes</em>.
+</div>
 <div id="ref-dudgeon_freshwater_2006" class="csl-entry">
 Dudgeon, D., Arthington, A. H., Gessner, M. O., Kawabata, Z.-I.,
 Knowler, D. J., Lévêque, C., Naiman, R. J., Prieur-Richard, A.-H., Soto,
@@ -2148,6 +2218,27 @@ Snyder, P. K. (2005). Global <span>Consequences</span> of
 <span>Land</span> <span>Use</span>. <em>Science</em>,
 <em>309</em>(5734), 570–574. <a href="https://doi.org/10.1126/science.1111772">https://doi.org/10.1126/science.1111772</a><div class="csl-block">_eprint:
 https://www.science.org/doi/pdf/10.1126/science.1111772</div>
+</div>
+<div id="ref-hammer_computer_2009" class="csl-entry">
+Hammer, G. (2009). <em>Computer session: Yield prediction, simulation of
+the genotype <span>X</span> environment interaction with an
+<span>Excel</span> version of <span>APSIM</span></em>.
+</div>
+<div id="ref-keating_overview_2003" class="csl-entry">
+Keating, B. A., Carberry, P. S., Hammer, G. L., Probert, M. E.,
+Robertson, M. J., Holzworth, D., Huth, N. I., Hargreaves, J. N. G.,
+Meinke, H., Hochman, Z., McLean, G., Verburg, K., Snow, V., Dimes, J.
+P., Silburn, M., Wang, E., Brown, S., Bristow, K. L., Asseng, S., …
+Smith, C. J. (2003). An overview of <span>APSIM</span>, a model designed
+for farming systems simulation. <em>European Journal of Agronomy</em>,
+<em>18</em>(3), 267–288. <a href="https://doi.org/10.1016/S1161-0301(02)00108-9">https://doi.org/10.1016/S1161-0301(02)00108-9</a>
+</div>
+<div id="ref-mccown_apsim_1996" class="csl-entry">
+McCown, R. L., Hammer, G. L., Hargreaves, J. N. G., Holzworth, D. P.,
+&amp; Freebairn, D. M. (1996). <span>APSIM</span>: A novel software
+system for model development, model testing and simulation in
+agricultural systems research. <em>Agricultural Systems</em>,
+<em>50</em>(3), 255–271. <a href="https://doi.org/10.1016/0308-521X(94)00055-V">https://doi.org/10.1016/0308-521X(94)00055-V</a>
 </div>
 <div id="ref-munns_comparative_2002" class="csl-entry">
 Munns, R. (2002). Comparative physiology of salt and water stress.
