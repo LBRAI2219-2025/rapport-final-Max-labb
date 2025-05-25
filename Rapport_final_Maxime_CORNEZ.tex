@@ -1,0 +1,892 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% definitions for citeproc citations
+\NewDocumentCommand\citeproctext{}{}
+\NewDocumentCommand\citeproc{mm}{%
+  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
+\makeatletter
+ % allow citations to break across lines
+ \let\@cite@ofmt\@firstofone
+ % avoid brackets around text for \cite:
+ \def\@biblabel#1{}
+ \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
+ {\begin{list}{}{%
+  \setlength{\itemindent}{0pt}
+  \setlength{\leftmargin}{0pt}
+  \setlength{\parsep}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+   \setlength{\leftmargin}{\cslhangindent}
+   \setlength{\itemindent}{-1\cslhangindent}
+  \fi
+  % set entry spacing
+  \setlength{\itemsep}{#2\baselineskip}}}
+ {\end{list}}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={LBRAI2219 - Modélisation des systèmes biologiques},
+  pdfauthor={Maxime CORNEZ},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{LBRAI2219 - Modélisation des systèmes biologiques}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Modèle APSIM pour deux cultures}
+\author{Maxime CORNEZ}
+\date{2025-05-24}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\section{Résumé}\label{ruxe9sumuxe9}
+
+\begin{quote}
+Résumé du travail, reprenant les résultats principaux et les
+perspectives.
+\end{quote}
+
+\section{Introduction}\label{introduction}
+
+\subsection{État de l'art}\label{uxe9tat-de-lart}
+
+L'agriculture moderne est soumise à de nombreux défis à l'heure actuelle
+: elle se doit de produire assez pour nourrir la population mondiale,
+tout en respectant au mieux l'environnement et en s'adaptant aux
+changements climatiques. Or, les terres disponibles pour l'agriculture
+ne sont pas illimitées et la pression sur les ressources naturelles est
+de plus en plus forte. De plus, les ressources en eau et en terre ne
+sont pas distribuées de manière égale sur la planète, ce qui rend la
+tâche encore plus complexe (Dudgeon et al. 2006).\\
+L'agriculture dépend de ces deux ressources presque autant qu'elle
+dépend du soleil, or avec l'augmentation de la population mondiale et
+les changements climatiques, la disponibilité de l'eau et des terres
+agricoles est mise à rude épreuve.\\
+Aujourd'hui, si on combine les terres arables et les prairies,ces deux
+biomes sont les plus présent à la surface de la Terre, occupant environ
+40 \% de la surface terrestre. En outre, les terres agricoles sont
+souvent utilisées de manière intensive, avec des pratiques telles que la
+monoculture, l'utilisation excessive d'engrais et de pesticides, et la
+déforestation pour créer de nouvelles terres agricoles. Ces pratiques
+ont des conséquences néfastes sur l'environnement, notamment la perte de
+biodiversité, la dégradation des sols et la pollution de l'eau (Foley et
+al. 2005).
+
+\hfill\break
+La recherche agronomique s'est orientée vers des pratiques agricoles
+plus durables, telles que l'agroécologie, l'agriculture de conservation
+et la permaculture. Ces pratiques visent à réduire l'impact
+environnemental de l'agriculture tout en maintenant des rendements
+élevés. Elles reposent sur une meilleure compréhension des interactions
+entre les plantes, les sols et les écosystèmes, ainsi que sur
+l'utilisation de techniques de gestion intégrée des cultures (Bondeau et
+al. 2007).
+
+Pour s'adapter aux épisodes de stress hydrique et thermique, les plantes
+déploient un éventail de réponses physiologiques coordonnées. D'une
+part, elles ferment partiellement, voire totalement, leurs stomates pour
+réduire les pertes d'eau, ajustent leur croissance, celle de leurs
+racines et celle de leur feuillage, pour limiter l'évapotranspiration et
+modifient l'orientation et la taille de leurs feuilles afin d'optimiser
+la capture de la lumière sans souffrir de surchauffe. D'autre part,
+elles optimisent l'efficacité de leur utilisation de l'eau par des
+ajustements biochimiques, comme l'accumulation d'osmolytes, et par des
+modifications de la composition de leur cuticule pour diminuer la perte
+d'eau.\\
+Au cœur de ces stratégies, l'architecture racinaire joue un rôle
+décisif. Un enracinement profond permet d'accéder aux réserves hydriques
+des horizons profonds, tandis qu'une croissance rapide des racines
+favorise une exploration efficace du volume de sol. La capacité à
+répartir finement les racines dans les différents niveaux du sol accroît
+considérablement les probabilités de rencontrer des poches d'humidité.
+De plus, certaines plantes développent une plasticité racinaire
+importante, ajustant dynamiquement la ramification et l'élongation des
+racines selon la disponibilité locale de l'eau, et renforcent leurs
+interactions avec les champignons mycorhiziens pour améliorer
+l'absorption hydrique et minérale. Ces traits racinaires combinés
+forment un arsenal adaptatif essentiel pour maintenir la croissance et
+la productivité en conditions de déficit hydrique(Munns 2002).
+
+\hfill\break
+Ce projet traitera plus spécifiquement de la permaculture et des
+intercultures, techniques visant à maximiser l'espace disponible et les
+ressources pour deux cultures ou plus occupant le même espace. Ces
+techniques sont de plus en plus populaires dans les systèmes agricoles
+durables, car elles permettent de diversifier les cultures, d'améliorer
+la santé des sols et de réduire les besoins en intrants chimiques
+(Brooker et al. 2015).
+
+Le maïs (\emph{Zea mays L.}) est l'une des céréales les plus cultivées
+au monde, environ 850 millions de tonnes produites par an sur
+approximativement 162 millions d'hectares (Yara 2018). Son métabolisme
+en C₄ lui garantit une photosynthèse très efficace et une bonne
+tolérance aux fortes températures. Toutefois, il reste fortement
+dépendant de l'eau, en particulier durant la floraison et la
+pollinisation, lorsque le stress hydrique peut provoquer des pertes de
+rendement importantes. Son réseau racinaire dense et profond, pouvant
+aller jusqu'à 1m80, lui permet une captation efficace de l'eau et des
+nutriments (Barnabás, Jäger, and Fehér 2008).
+
+Il serait intéressant d'optimiser ces surfaces de culture en alliant les
+plants de maïs avec d'autres plantes pouvant bénéficier de cet espace.
+La sélection des bonnes variétés de plante entrainera un symbiose,
+améliorant le rendement globale de production et permettant ainsi une
+meilleure valorisation de l'eau et des ressources.\\
+Les cultures le plus souvent associées au maïs sont souvent des espèces
+de petite taille, profitant de l'ombrage apporté par les feuilles du
+maïs ou de la structure de sa tige(Brooker et al. 2015; Dong et al.
+2022; Nassary, Baijukya, and Ndakidemi 2020; Zhang and Li 2003). On
+retrouve par exemple :
+
+\begin{itemize}
+\item
+  des légumineuses comme les haricots (\emph{Phaseolus vulgaris}) : ils
+  fixent l'azote atmosphérique dans le sol, améliorant ainsi la
+  fertilité du sol et réduisant le besoin en engrais azotés pour le maïs
+  et se servent des tiges de maïs comme support pour leurs tiges (Mudare
+  et al. 2022).
+\item
+  des courges (\emph{Cucurbita pepo}) : elles ont de grandes feuilles
+  qui fournissent de l'ombre au sol, réduisant l'évaporation de l'eau et
+  maintenant une température du sol plus fraîche, ce qui est bénéfique
+  pour le maïs. Elles aident également à contrôler les mauvaises herbes
+  en couvrant le sol (Cryan et al. 2025).
+\item
+  des salades (\emph{Lactuca sativa}) : elles ont une croissance rapide
+  et peuvent être récoltées avant que le maïs ne devienne trop grand,
+  permettant ainsi une utilisation efficace de l'espace. Elles protègent
+  le sol et exploitent la strate inférieure (Brennan 2013).
+\end{itemize}
+
+\subsection{Importance de l'approche par
+modélisation}\label{importance-de-lapproche-par-moduxe9lisation}
+
+Comme l'a dit Samuel P. Huntington ``Nous avons besoin de modèles
+explicites ou implicites pour pouvoir ordonner et généraliser la
+réalité, comprendre les relations causales entre les phénomènes,
+anticiper et, si nous avons de la chance, prédire les développements
+futurs, distinguer l'essentiel de l'accessoire et nous indiquer les
+chemins à suivre pour atteindre nos objectifs''. Un modèle n'est jamais
+une parfaite représentation de la réalité, mais il permet de simplifier
+et d'organiser les connaissances pour mieux comprendre les systèmes
+complexes. En agronomie, la modélisation est un outil essentiel pour
+simuler le comportement des cultures et des systèmes agricoles, en
+tenant compte des interactions entre les plantes, le sol et
+l'environnement, sans devoir nécessairement passer par une étape
+expérimentale longue et coûteuse (Tremblay and Wallach 2004).
+
+Le modèle APSIM (pour Agricultural Production Systems sIMulator) est un
+modèle de simulation de culture qui permet de simuler la croissance des
+cultures, la dynamique du sol et les interactions entre les plantes et
+l'environnement. Il a été développé en 1995 par une équipe
+multiuniversitaire et est encore utilisé et amélioré à ce jour. APSIM
+est un modèle modulaire, ce qui signifie qu'il peut être adapté à
+différents systèmes agricoles et à différentes conditions
+environnementales. Il est capable de simuler la croissance des cultures
+en tenant compte des facteurs climatiques, hydriques et nutritionnels,
+ainsi que des interactions entre les plantes et le sol (McCown et al.
+1996; Keating et al. 2003).\\
+
+\section{Matériel et méthodes}\label{matuxe9riel-et-muxe9thodes}
+
+\subsection{Modèles}\label{moduxe8les}
+
+L'étude repose sur une modélisation d'APSIM en combinant deux cultures
+(maïs et autre) en interculture. Le modèle APSIM est utilisé pour
+simuler la croissance des cultures, la dynamique du sol et les
+interactions entre les plantes et l'environnement.
+
+\begin{itemize}
+\item
+  \textbf{APSIM mono} : Ce modèle a pour but de simuler la production de
+  biomasse chez le maïs en prenant en compte à la fois les contraintes
+  hydriques et lumineuses. Il s'appuie d'une part sur les équations de
+  Monteith, qui relient la croissance à la quantité de rayonnement
+  intercepté, et d'autre part sur le concept d'efficience de
+  transpiration, qui traduit la conversion de l'eau prélevée en biomassе
+  sous stress hydrique. Ensemble, ces deux approches permettent de
+  quantifier l'impact combiné de la lumière et de la disponibilité en
+  eau sur le développement de la culture. (\textbf{draye?}; Hammer
+  2009)\\
+  La version présentée ici a été légèrement remise en forme par Alice
+  Falzon et moi-même afin d'en améliorer l'érgonomie et la facilité
+  d'utilisation.
+\item
+  \textbf{APSIM duo} : Ce modèle est une extension du modèle mono, qui
+  permet de simuler la production de biomasse pour deux cultures en
+  interculture. Il prend en compte les interactions entre les deux
+  cultures pour l'eau et la profondeur des racines. Le modèle est
+  capable de simuler la croissance des deux cultures en tenant compte
+  des facteurs climatiques et hydriques, ainsi que des interactions
+  entre les plantes et le sol. Le modèle inclut un ``arbitre''
+  déterminant quelle culture recevra prioritairement l'eau en cas de
+  déficit hydrique, cet arbitre est inclu directement dans la fonction
+  du modèle.\\
+  Par simplicité, l'hypothèse que les deux cultures n'ont pas
+  d'intéractions au niveau de la lumière a été faite, ce qui signifie
+  que la lumière est répartie entre les deux cultures selon la
+  disponibilité.\\
+  La conversion de APSIM mono vers duo a représenté la plus grande
+  partie de ce projet.
+\end{itemize}
+
+Le plan de modélisation est structuré comme suit :
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Obtention des paramètres de cultures pour chaque culture désirée. Puis
+  des paramètres du sol et de l'expansion foliaire
+\item
+  Obtention des paramètres météo, soit via un jeu de données généré
+  artificiellement, soit via un jeu de données réelles obtenu via
+  Open-Meteo (\textbf{open-meteo\_\_nodate?}) ; sélection de la source
+  via le switch installé dans le code.
+\item
+  Fixation des densités de culture.
+\item
+  Simulation de la production de biomasse avec APSIM.
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \item
+    Pour le maïs seul avec Apsim mono.
+  \item
+    En combinant le maïs avec une autre culture avec Apsim duo.
+  \end{enumerate}
+\item
+  Analyse et comparaison des résultats.
+\end{enumerate}
+
+\subsection{Packages}\label{packages}
+
+\begin{itemize}
+\item
+  \textbf{Importation et manipulation de données}
+
+  \begin{itemize}
+  \item
+    \emph{readxl} : permet de lire directement des fichiers Excel (.xls,
+    .xlsx) en important les feuilles de calcul sous forme de data
+    frames.
+  \item
+    \emph{dplyr} et \emph{tidyr} : offrent un ensemble de fonctions
+    (p.~ex. filter(), select(), mutate() ) pour nettoyer, transformer et
+    reformater les données de façon claire et fluide.
+  \end{itemize}
+\item
+  \textbf{Visualisation}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{ggplot2} : propose un système de grammaire graphique puissant
+    pour créer des graphiques élégants et personnalisables
+    (histogrammes, nuages de points, séries temporelles, etc.) à partir
+    de de data frames.
+  \end{itemize}
+\item
+  \textbf{Accès et traitement de données web}
+
+  \begin{itemize}
+  \item
+    \emph{httr} : facilite les requêtes HTTP (GET, POST,
+    authentification) pour interagir avec des API ou récupérer des
+    ressources distantes.
+  \item
+    \emph{jsonlite} : convertit des fichiers JSON en objets R (et
+    inversement), ce qui rend l'exploitation des réponses d'API et le
+    stockage des données JSON plus accessibles.
+  \end{itemize}
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Packages requis}
+\FunctionTok{library}\NormalTok{(readxl)}
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(tidyr)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(jsonlite)}
+\FunctionTok{library}\NormalTok{(httr)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Données d'entrée}\label{donnuxe9es-dentruxe9e}
+
+\subsubsection{Paramètres des
+cultures}\label{paramuxe8tres-des-cultures}
+
+Dans la mesure du possible, les paramètres ont été extraits de la
+littérature. Lorsque certaines données faisaient défaut, des
+extrapolations ont été réalisées à partir des connaissances acquises au
+cours de ma formation, dans un but de différenciation de l'espèce par
+rapport au maïs. Seules les données relatives au maïs peuvent être
+considérées comme pleinement fiables, puisqu'elles proviennent d'un
+exercice pratique donné par le professeur Draye Rouphael and Colla
+(2005).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mais }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{RUE               =} \FloatTok{1.6}\NormalTok{,   }\CommentTok{\# Radiation Use Efficiency [g/MJ]}
+  \AttributeTok{TEc               =} \DecValTok{9}\NormalTok{,     }\CommentTok{\# Coefficient d\textquotesingle{}efficience de la transpiration [Pa]}
+  \AttributeTok{VPR               =} \DecValTok{20}\NormalTok{,    }\CommentTok{\# Vitesse production de racines [mm/jour]}
+  \AttributeTok{CroissPotLAI      =} \FloatTok{0.1}\NormalTok{,   }\CommentTok{\# Croissance potentielle du LAI }
+  \AttributeTok{k                 =} \FloatTok{0.45}\NormalTok{,  }\CommentTok{\# Coefficient d\textquotesingle{}extinction de la lumière}
+  \AttributeTok{LAI\_initial       =} \FloatTok{1.5}\NormalTok{,   }
+  \AttributeTok{Biomasse\_initiale =} \DecValTok{45}     
+\NormalTok{)}
+
+\NormalTok{sorgho }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{RUE               =} \FloatTok{1.25}\NormalTok{,  }\CommentTok{\# Radiation Use Efficiency [g/MJ]}
+  \AttributeTok{TEc               =} \DecValTok{9}\NormalTok{,     }\CommentTok{\# Coefficient d\textquotesingle{}efficience de la transpiration [Pa]}
+  \AttributeTok{VPR               =} \DecValTok{20}\NormalTok{,    }\CommentTok{\# Vitesse production de racines [mm/jour]}
+  \AttributeTok{CroissPotLAI      =} \FloatTok{0.1}\NormalTok{,   }\CommentTok{\# Croissance potentielle du LAI }
+  \AttributeTok{k                 =} \FloatTok{0.45}\NormalTok{,  }\CommentTok{\# Coefficient d\textquotesingle{}extinction de la lumière}
+  \AttributeTok{LAI\_initial       =} \FloatTok{1.5}\NormalTok{,   }
+  \AttributeTok{Biomasse\_initiale =} \DecValTok{45}     
+\NormalTok{)}
+
+\NormalTok{haricot }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{RUE               =} \FloatTok{1.78}\NormalTok{,  }\CommentTok{\# Radiation Use Efficiency [g/MJ]}
+  \AttributeTok{TEc               =} \FloatTok{4.9}\NormalTok{,   }\CommentTok{\# Coefficient d\textquotesingle{}efficience de la transpiration [Pa]}
+  \AttributeTok{VPR               =} \FloatTok{13.5}\NormalTok{,  }\CommentTok{\# Vitesse production de racines [mm/jour]}
+  \AttributeTok{CroissPotLAI      =} \FloatTok{0.1}\NormalTok{,   }\CommentTok{\# Croissance potentielle du LAI }
+  \AttributeTok{k                 =} \FloatTok{0.6}\NormalTok{,   }\CommentTok{\# Coefficient d\textquotesingle{}extinction de la lumière}
+  \AttributeTok{LAI\_initial       =} \FloatTok{1.0}\NormalTok{,   }
+  \AttributeTok{Biomasse\_initiale =} \DecValTok{20}     
+\NormalTok{)}
+
+\NormalTok{courge }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{RUE               =} \FloatTok{4.1}\NormalTok{,   }\CommentTok{\# Radiation Use Efficiency [g/MJ]}
+  \AttributeTok{TEc               =} \FloatTok{2.9}\NormalTok{,   }\CommentTok{\# Coefficient d\textquotesingle{}efficience de la transpiration [Pa]}
+  \AttributeTok{VPR               =} \DecValTok{15}\NormalTok{,    }\CommentTok{\# Vitesse production de racines [mm/jour]}
+  \AttributeTok{CroissPotLAI      =} \FloatTok{0.12}\NormalTok{,  }\CommentTok{\# Croissance potentielle du LAI }
+  \AttributeTok{k                 =} \FloatTok{0.72}\NormalTok{,  }\CommentTok{\# Coefficient d\textquotesingle{}extinction de la lumière}
+  \AttributeTok{LAI\_initial       =} \FloatTok{0.8}\NormalTok{,   }
+  \AttributeTok{Biomasse\_initiale =} \DecValTok{35}
+\NormalTok{)}
+
+
+\NormalTok{salade }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{RUE               =} \FloatTok{1.2}\NormalTok{,   }\CommentTok{\# Radiation Use Efficiency [g/MJ]}
+  \AttributeTok{TEc               =} \DecValTok{3}\NormalTok{,     }\CommentTok{\# Coefficient d\textquotesingle{}efficience de la transpiration [Pa]}
+  \AttributeTok{VPR               =} \DecValTok{8}\NormalTok{,     }\CommentTok{\# Vitesse production de racines [mm/jour]}
+  \AttributeTok{CroissPotLAI      =} \FloatTok{0.15}\NormalTok{,  }\CommentTok{\# Croissance potentielle du LAI }
+  \AttributeTok{k                 =} \FloatTok{0.5}\NormalTok{,   }\CommentTok{\# Coefficient d\textquotesingle{}extinction de la lumière}
+  \AttributeTok{LAI\_initial       =} \FloatTok{0.6}\NormalTok{,   }
+  \AttributeTok{Biomasse\_initiale =} \DecValTok{15}     
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Paramètres du sol}\label{paramuxe8tres-du-sol}
+
+Paramètres générés artificiellement pour avoir un sol d' 1m d'épaisseur
+contenant un minimum de 40mm d'eau et un maximum de 100mm d'eau.\\
+L'hyphothèse que le kl est une valeur propre au sol a été posée pour
+simplifier les calculs. En réalité, le kl est variable selon de nombreux
+critères propres au sol et aux plantes occupant le sol.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{soil\_params }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{Horizon     =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{3}\NormalTok{),}
+  \AttributeTok{Epaisseur   =} \FunctionTok{c}\NormalTok{(}\DecValTok{300}\NormalTok{, }\DecValTok{300}\NormalTok{, }\DecValTok{400}\NormalTok{),   }\CommentTok{\# mm}
+  \AttributeTok{li          =} \FunctionTok{c}\NormalTok{(}\DecValTok{40}\NormalTok{,  }\DecValTok{40}\NormalTok{,  }\DecValTok{40}\NormalTok{),    }\CommentTok{\# Limite inférieure d\textquotesingle{}eau}
+  \AttributeTok{ls          =} \FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{, }\DecValTok{100}\NormalTok{, }\DecValTok{100}\NormalTok{),   }\CommentTok{\# Limite supérieure d\textquotesingle{}eau}
+  \AttributeTok{es          =} \FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{, }\DecValTok{100}\NormalTok{, }\DecValTok{100}\NormalTok{),   }\CommentTok{\# Eau disponible dans sol (= sw)}
+  \AttributeTok{es\_h        =} \FunctionTok{c}\NormalTok{(}\DecValTok{40}\NormalTok{, }\DecValTok{30}\NormalTok{, }\DecValTok{30}\NormalTok{),      }\CommentTok{\# Eau disponible dans sol par horizon ; es\_h1+es\_h2+es\_h3 = es}
+  \AttributeTok{kl          =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.06}\NormalTok{, }\FloatTok{0.05}\NormalTok{, }\FloatTok{0.05}\NormalTok{) }\CommentTok{\# Taux d\textquotesingle{}extraction [mm/jour]}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Expansion foliaire}\label{expansion-foliaire}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Culture 1}
+\NormalTok{expansion\_foliaire }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{OD  =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\FloatTok{1.5}\NormalTok{, }\DecValTok{4}\NormalTok{), }\CommentTok{\# Offre sur demande}
+  \AttributeTok{CEF =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,   }\DecValTok{1}\NormalTok{,   }\DecValTok{1}\NormalTok{)  }\CommentTok{\# Coefficient d\textquotesingle{}expansion foliaire}
+\NormalTok{)}
+
+\CommentTok{\# Culture 2}
+\NormalTok{expansion\_foliaire2 }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{OD  =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.4}\NormalTok{, }\FloatTok{1.0}\NormalTok{, }\FloatTok{3.5}\NormalTok{), }\CommentTok{\# Offre sur demande}
+  \AttributeTok{CEF =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,   }\FloatTok{0.8}\NormalTok{, }\DecValTok{1}\NormalTok{)    }\CommentTok{\# Coefficient d\textquotesingle{}expansion foliaire}
+
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Paramètres météo}\label{paramuxe8tres-muxe9tuxe9o}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Données météo réelles }
+\NormalTok{lat }\OtherTok{\textless{}{-}} \FloatTok{50.666265}\NormalTok{; lon }\OtherTok{\textless{}{-}} \FloatTok{4.622322}   \CommentTok{\# Localisation de la zone d\textquotesingle{}étude : 50.666265 ; 4.622322 = batiment De serres}
+\NormalTok{start\_date }\OtherTok{\textless{}{-}} \StringTok{"2024{-}06{-}01"}\NormalTok{; end\_date }\OtherTok{\textless{}{-}} \StringTok{"2024{-}06{-}30"}           \CommentTok{\# Période de simulation}
+\NormalTok{res }\OtherTok{\textless{}{-}} \FunctionTok{GET}\NormalTok{(}\StringTok{"https://archive{-}api.open{-}meteo.com/v1/archive"}\NormalTok{,    }\CommentTok{\# Obtention des données de la station météo belge}
+           \AttributeTok{query =} \FunctionTok{list}\NormalTok{(}\AttributeTok{latitude =}\NormalTok{ lat, }\AttributeTok{longitude =}\NormalTok{ lon,}
+                        \AttributeTok{start\_date =}\NormalTok{ start\_date, }\AttributeTok{end\_date =}\NormalTok{ end\_date,}
+                        \AttributeTok{daily =} \StringTok{"temperature\_2m\_max,temperature\_2m\_min,shortwave\_radiation\_sum"}\NormalTok{,}
+                        \AttributeTok{timezone =} \StringTok{"Europe/Brussels"}\NormalTok{))}
+\NormalTok{meteo\_data }\OtherTok{\textless{}{-}} \FunctionTok{fromJSON}\NormalTok{(}\FunctionTok{content}\NormalTok{(res, }\StringTok{"text"}\NormalTok{))}\SpecialCharTok{$}\NormalTok{daily             }\CommentTok{\# Importation du fichier de données JSON}
+
+\NormalTok{meteo\_df }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(meteo\_data) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{Date =}\NormalTok{ time, }\AttributeTok{Tmax =}\NormalTok{ temperature\_2m\_max,}
+         \AttributeTok{Tmin =}\NormalTok{ temperature\_2m\_min, }\AttributeTok{Radiation =}\NormalTok{ shortwave\_radiation\_sum) }\SpecialCharTok{\%\textgreater{}\%}
+  
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Jours =} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{n}\NormalTok{(),  }\CommentTok{\# fonctions pour calculer vdp                                    }
+         \AttributeTok{svpTmax =} \FloatTok{6.1078} \SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(}\FloatTok{17.269} \SpecialCharTok{*}\NormalTok{ Tmax }\SpecialCharTok{/}\NormalTok{ (}\FloatTok{237.3} \SpecialCharTok{+}\NormalTok{ Tmax)) }\SpecialCharTok{*} \FloatTok{0.10}\NormalTok{,}
+         \AttributeTok{svpTmin =} \FloatTok{6.1078} \SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(}\FloatTok{17.269} \SpecialCharTok{*}\NormalTok{ Tmin }\SpecialCharTok{/}\NormalTok{ (}\FloatTok{237.3} \SpecialCharTok{+}\NormalTok{ Tmin)) }\SpecialCharTok{*} \FloatTok{0.10}\NormalTok{,}
+         \AttributeTok{VPDcalc =} \FloatTok{0.75} \SpecialCharTok{*}\NormalTok{ (svpTmax }\SpecialCharTok{{-}}\NormalTok{ svpTmin) }\SpecialCharTok{*} \DecValTok{10}\NormalTok{)}
+
+\CommentTok{\# Génération de données artificielles}
+
+\NormalTok{facteur\_externe }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \CommentTok{\# Durée de la simulation (jours)}
+  \AttributeTok{Jours =} \DecValTok{30}\SpecialCharTok{:}\DecValTok{60}\NormalTok{, }
+  
+  \CommentTok{\# Radiation (MJ/m2)}
+  \AttributeTok{Radiation =} \FunctionTok{c}\NormalTok{( }
+    \DecValTok{27}\NormalTok{, }\DecValTok{27}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{24}\NormalTok{, }\DecValTok{23}\NormalTok{, }\DecValTok{21}\NormalTok{, }
+    \DecValTok{23}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{26}\NormalTok{, }\DecValTok{26}\NormalTok{, }
+    \DecValTok{10}\NormalTok{, }\DecValTok{26}\NormalTok{, }\DecValTok{30}\NormalTok{, }\DecValTok{27}\NormalTok{, }\DecValTok{27}\NormalTok{, }\DecValTok{29}\NormalTok{, }
+    \DecValTok{27}\NormalTok{, }\DecValTok{26}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{23}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{25}\NormalTok{, }
+    \DecValTok{22}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{24}\NormalTok{, }\DecValTok{28}\NormalTok{, }\DecValTok{25}\NormalTok{, }\DecValTok{25}
+\NormalTok{  ),}
+  
+  \CommentTok{\# Tmax (°C)}
+  \AttributeTok{Tmax =} \FunctionTok{c}\NormalTok{( }
+    \FloatTok{32.3}\NormalTok{, }\FloatTok{31.0}\NormalTok{, }\FloatTok{26.6}\NormalTok{, }\FloatTok{26.0}\NormalTok{, }\FloatTok{26.6}\NormalTok{, }\FloatTok{29.5}\NormalTok{, }
+    \FloatTok{30.8}\NormalTok{, }\FloatTok{32.5}\NormalTok{, }\FloatTok{32.3}\NormalTok{, }\FloatTok{25.2}\NormalTok{, }\FloatTok{27.8}\NormalTok{, }\FloatTok{28.2}\NormalTok{, }
+    \FloatTok{27.3}\NormalTok{, }\FloatTok{28.6}\NormalTok{, }\FloatTok{28.6}\NormalTok{, }\FloatTok{28.3}\NormalTok{, }\FloatTok{27.6}\NormalTok{, }\FloatTok{31.0}\NormalTok{, }
+    \FloatTok{35.0}\NormalTok{, }\FloatTok{34.3}\NormalTok{, }\FloatTok{31.2}\NormalTok{, }\FloatTok{32.7}\NormalTok{, }\FloatTok{29.9}\NormalTok{, }\FloatTok{30.8}\NormalTok{, }
+    \FloatTok{31.2}\NormalTok{, }\FloatTok{28.4}\NormalTok{, }\FloatTok{27.7}\NormalTok{, }\FloatTok{31.4}\NormalTok{, }\FloatTok{33.0}\NormalTok{, }\FloatTok{33.2}\NormalTok{, }\FloatTok{32.7}
+\NormalTok{  ),}
+  
+  \CommentTok{\# Tmin (°C)}
+  \AttributeTok{Tmin =} \FunctionTok{c}\NormalTok{( }
+    \FloatTok{16.4}\NormalTok{, }\FloatTok{15.8}\NormalTok{, }\FloatTok{15.6}\NormalTok{, }\FloatTok{10.0}\NormalTok{, }\FloatTok{11.7}\NormalTok{, }\FloatTok{13.0}\NormalTok{, }
+    \FloatTok{16.5}\NormalTok{, }\FloatTok{13.8}\NormalTok{, }\FloatTok{16.7}\NormalTok{, }\FloatTok{16.7}\NormalTok{, }\FloatTok{15.8}\NormalTok{, }\FloatTok{12.8}\NormalTok{, }
+    \FloatTok{17.3}\NormalTok{, }\FloatTok{11.3}\NormalTok{, }\FloatTok{13.7}\NormalTok{, }\FloatTok{13.4}\NormalTok{, }\FloatTok{13.7}\NormalTok{, }\FloatTok{12.2}\NormalTok{, }
+    \FloatTok{14.7}\NormalTok{, }\FloatTok{20.4}\NormalTok{, }\FloatTok{15.5}\NormalTok{, }\FloatTok{17.9}\NormalTok{, }\FloatTok{18.4}\NormalTok{, }\FloatTok{16.0}\NormalTok{, }
+    \FloatTok{16.1}\NormalTok{, }\FloatTok{18.0}\NormalTok{, }\FloatTok{14.9}\NormalTok{, }\FloatTok{16.0}\NormalTok{, }\FloatTok{16.2}\NormalTok{, }\FloatTok{17.2}\NormalTok{, }\FloatTok{18.3}
+\NormalTok{  ),}
+  
+  \CommentTok{\# VPDobs (hPa)}
+  \AttributeTok{VPDobs =} \FunctionTok{c}\NormalTok{( }
+    \DecValTok{19}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{14}\NormalTok{, }\DecValTok{12}\NormalTok{, }\DecValTok{15}\NormalTok{, }
+    \DecValTok{18}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{23}\NormalTok{, }\DecValTok{21}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{14}\NormalTok{, }
+    \DecValTok{20}\NormalTok{, }\DecValTok{16}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{15}\NormalTok{, }\DecValTok{15}\NormalTok{, }
+    \DecValTok{16}\NormalTok{, }\DecValTok{17}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{21}\NormalTok{, }\DecValTok{22}\NormalTok{, }\DecValTok{17}\NormalTok{, }
+    \DecValTok{18}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{18}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{19}\NormalTok{, }\DecValTok{20}\NormalTok{, }\DecValTok{21}
+\NormalTok{  )}
+\NormalTok{)}
+
+\CommentTok{\# Fonction pour calculer saturated vapour pressure (SVP)}
+\NormalTok{svp }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(T) \{ }\CommentTok{\# satured vapour pressure [kPa]}
+  \FloatTok{6.1078} \SpecialCharTok{*} \FunctionTok{exp}\NormalTok{(}\FloatTok{17.269} \SpecialCharTok{*}\NormalTok{ T }\SpecialCharTok{/}\NormalTok{ (}\FloatTok{237.3} \SpecialCharTok{+}\NormalTok{ T)) }\SpecialCharTok{*} \FloatTok{0.10}
+\NormalTok{\}}
+
+\CommentTok{\# Application à Tmax}
+\NormalTok{facteur\_externe}\SpecialCharTok{$}\NormalTok{svpTmax }\OtherTok{\textless{}{-}} \FunctionTok{svp}\NormalTok{(facteur\_externe}\SpecialCharTok{$}\NormalTok{Tmax) }\CommentTok{\# pression saturante à Tmax}
+
+\CommentTok{\# Application à Tmin}
+\NormalTok{facteur\_externe}\SpecialCharTok{$}\NormalTok{svpTmin }\OtherTok{\textless{}{-}} \FunctionTok{svp}\NormalTok{(facteur\_externe}\SpecialCharTok{$}\NormalTok{Tmin) }\CommentTok{\# pression saturante à Tmin}
+
+\NormalTok{VPDfrac }\OtherTok{\textless{}{-}} \FloatTok{0.75} \CommentTok{\# par défaut on prend 0.75}
+
+
+\CommentTok{\# Fonction pour calculer VPDcalc}
+\NormalTok{calc\_VPDcalc }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(svpTmax, svpTmin, VPDfrac) \{}
+\NormalTok{  VPDfrac }\SpecialCharTok{*}\NormalTok{ (svpTmax }\SpecialCharTok{{-}}\NormalTok{ svpTmin)}\SpecialCharTok{*}\DecValTok{10}
+\NormalTok{\}}
+
+\CommentTok{\# Ajout de la colonne VPDcalc}
+\NormalTok{facteur\_externe}\SpecialCharTok{$}\NormalTok{VPDcalc }\OtherTok{\textless{}{-}} \FunctionTok{calc\_VPDcalc}\NormalTok{(}
+  \AttributeTok{svpTmax  =}\NormalTok{ facteur\_externe}\SpecialCharTok{$}\NormalTok{svpTmax,}
+  \AttributeTok{svpTmin  =}\NormalTok{ facteur\_externe}\SpecialCharTok{$}\NormalTok{svpTmin,}
+  \AttributeTok{VPDfrac  =}\NormalTok{ VPDfrac}
+\NormalTok{)}
+
+\DocumentationTok{\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#}
+\CommentTok{\# Choix de la source de données : "reel" ou "artificiel" (switch)}
+\DocumentationTok{\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#}
+\NormalTok{data\_source }\OtherTok{\textless{}{-}} \StringTok{"artificiel"}    \CommentTok{\# mettre "artificiel" si on veux le jeu généré}
+
+\ControlFlowTok{if}\NormalTok{ (data\_source }\SpecialCharTok{==} \StringTok{"reel"}\NormalTok{) \{}
+\NormalTok{  facteur\_externe }\OtherTok{\textless{}{-}}\NormalTok{ meteo\_df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{select}\NormalTok{(Jours, Radiation, Tmax, Tmin, VPDcalc)}
+\NormalTok{\} }\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{ (data\_source }\SpecialCharTok{==} \StringTok{"artificiel"}\NormalTok{) \{}
+\NormalTok{  facteur\_externe }\OtherTok{\textless{}{-}}\NormalTok{ facteur\_externe }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{select}\NormalTok{(Jours, Radiation, Tmax, Tmin, VPDcalc)}
+\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
+  \FunctionTok{stop}\NormalTok{(}\StringTok{"data\_source doit être \textquotesingle{}reel\textquotesingle{} ou \textquotesingle{}artificiel\textquotesingle{}"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Densité des deux
+cultures}\label{densituxe9-des-deux-cultures}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Densite1 }\OtherTok{\textless{}{-}} \FloatTok{0.5} \CommentTok{\# Densité de la culture 1 }
+\NormalTok{Densite2 }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Densite1 }\CommentTok{\# Densité de la culture 2 }
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Modèles utilisés}\label{moduxe8les-utilisuxe9s}
+
+Importation des deux modèles utilisés.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{source}\NormalTok{(}\StringTok{"apsim\_mono.R"}\NormalTok{)  }\CommentTok{\# Apsim monoculture}
+\FunctionTok{source}\NormalTok{(}\StringTok{"apsim\_duo.R"}\NormalTok{)   }\CommentTok{\# Apsim double culture}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Résultats}\label{ruxe9sultats}
+
+\subsection{Simulation des cultures}\label{simulation-des-cultures}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{resultat\_mais }\OtherTok{\textless{}{-}} \FunctionTok{simulate}\NormalTok{(facteur\_externe, soil\_params, mais, expansion\_foliaire) }\CommentTok{\# simulation maïs seul}
+
+\NormalTok{resultats\_mais\_haricot }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_two}\NormalTok{(facteur\_externe, soil\_params, mais, haricot, expansion\_foliaire, expansion\_foliaire2, Densite1, Densite2) }\CommentTok{\# simulation maïs + haricot}
+
+\NormalTok{resultats\_mais\_courge }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_two}\NormalTok{(facteur\_externe, soil\_params, mais, courge, expansion\_foliaire, expansion\_foliaire2, Densite1, Densite2) }\CommentTok{\# simulation maïs + courge}
+
+\NormalTok{resultats\_mais\_salade }\OtherTok{\textless{}{-}} \FunctionTok{simulate\_two}\NormalTok{(facteur\_externe, soil\_params, mais, salade, expansion\_foliaire, expansion\_foliaire2, Densite1, Densite2) }\CommentTok{\# simulation maïs + salade}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Modélisation de l'évolution de la culture (bah
+oui)}\label{moduxe9lisation-de-luxe9volution-de-la-culture-bah-oui}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+mollit anim id est laborum.
+
+\subsection{Couplage entre le modèle racinaire et le modèle de culture
+(remplacer par couplage de 2
+cultures)}\label{couplage-entre-le-moduxe8le-racinaire-et-le-moduxe8le-de-culture-remplacer-par-couplage-de-2-cultures}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+mollit anim id est laborum.
+
+\subsection{Analyse de l'interaction entre rendements et racines (kl
+?)}\label{analyse-de-linteraction-entre-rendements-et-racines-kl}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+mollit anim id est laborum.
+
+\section{Collaboration}\label{collaboration}
+
+Lors de ce projet j'ai eu l'occasion de collaborer avec plusieurs
+collègues autant pour améliorer mon projet que pour les aider avec le
+leur.
+
+Je tiens à remercier tout particulièrement Alice Falzon avec qui j'ai
+travaillé à l'élaboration du modèle APSIM\_2025, qui est la base de ce
+projet, elle m'a aussi fourni le code pour obtenir les données météo
+réelles via Open-Meteo et pour ses retours concernant mon rapport.\\
+En retour j'ai pu l'aider à améliorer quelques points de son modèle et
+j'ai aussi relu son rapport.
+
+Nous avons partagé notre code avec le reste de la classe, mais je ne
+saurais dire précisément qui l'a utilisé.
+
+Je remercie aussi Ismael Peeters pour son aide sur la théorie lié au kl.
+
+J'ai pu aidé Emile Davio et Zoé Saintrain sur des points relatifs à la
+théorie et au code d'APSIM.
+
+\section*{Références}\label{ruxe9fuxe9rences}
+\addcontentsline{toc}{section}{Références}
+
+\phantomsection\label{refs}
+\begin{CSLReferences}{1}{0}
+\bibitem[\citeproctext]{ref-barnabas_effect_2008}
+Barnabás, Beáta, Katalin Jäger, and Attila Fehér. 2008. {``The Effect of
+Drought and Heat Stress on Reproductive Processes in Cereals.''}
+\emph{Plant, Cell \& Environment} 31 (1): 11--38.
+\url{https://doi.org/10.1111/j.1365-3040.2007.01727.x}.
+
+\bibitem[\citeproctext]{ref-bondeau_modelling_2007}
+Bondeau, Alberte, Pascalle C. Smith, Sönke Zaehle, Sibyll Schaphoff,
+Wolfgang Lucht, Wolfgang Cramer, Dieter Gerten, et al. 2007.
+{``Modelling the Role of Agriculture for the 20th Century Global
+Terrestrial Carbon Balance.''} \emph{Global Change Biology} 13 (3):
+679--706. \url{https://doi.org/10.1111/j.1365-2486.2006.01305.x}.
+
+\bibitem[\citeproctext]{ref-brennan_agronomic_2013}
+Brennan, Eric B. 2013. {``Agronomic Aspects of Strip Intercropping
+Lettuce with Alyssum for Biological Control of Aphids.''}
+\emph{Biological Control} 65 (3): 302--11.
+https://doi.org/\url{https://doi.org/10.1016/j.biocontrol.2013.03.017}.
+
+\bibitem[\citeproctext]{ref-brooker_improving_2015}
+Brooker, Rob W., Alison E. Bennett, Wen-Feng Cong, Tim J. Daniell,
+Timothy S. George, Paul D. Hallett, Cathy Hawes, et al. 2015.
+{``Improving Intercropping: A Synthesis of Research in Agronomy, Plant
+Physiology and Ecology.''} \emph{New Phytologist} 206 (1): 107--17.
+\url{https://doi.org/10.1111/nph.13132}.
+
+\bibitem[\citeproctext]{ref-cryan_yield_2025}
+Cryan, Ty, Olivia Musselman, Aaron W. Baumgardner, Sadie Osborn,
+Caroline J. Beuscher, Caitlin Stehn, Ariane Burt, et al. 2025. {``Yield,
+Growth, and Labor Demands of Growing Maize, Beans, and Squash in
+Monoculture Versus the {Three} {Sisters}.''} \emph{PLANTS, PEOPLE,
+PLANET} 7 (1): 204--14. \url{https://doi.org/10.1002/ppp3.10576}.
+
+\bibitem[\citeproctext]{ref-dong_maize_2022}
+Dong, Qiqi, Xinhua Zhao, Dongying Zhou, Zhenhua Liu, Xiaolong Shi, Yang
+Yuan, Peiyan Jia, et al. 2022. {``Maize and Peanut Intercropping
+Improves the Nitrogen Accumulation and Yield Per Plant of Maize by
+Promoting the Secretion of Flavonoids and Abundance of {Bradyrhizobium}
+in Rhizosphere.''} \emph{Frontiers in Plant Science} 13 (August).
+\url{https://doi.org/10.3389/fpls.2022.957336}.
+
+\bibitem[\citeproctext]{ref-draye_practical_nodate}
+Draye, Xavier. n.d. {``Practical Notes.''}
+
+\bibitem[\citeproctext]{ref-dudgeon_freshwater_2006}
+Dudgeon, David, Angela H. Arthington, Mark O. Gessner, Zen-Ichiro
+Kawabata, Duncan J. Knowler, Christian Lévêque, Robert J. Naiman, et al.
+2006. {``Freshwater Biodiversity: Importance, Threats, Status and
+Conservation Challenges.''} \emph{Biological Reviews} 81 (2): 163--82.
+\url{https://doi.org/10.1017/S1464793105006950}.
+
+\bibitem[\citeproctext]{ref-foley_global_2005}
+Foley, Jonathan A., Ruth DeFries, Gregory P. Asner, Carol Barford,
+Gordon Bonan, Stephen R. Carpenter, F. Stuart Chapin, et al. 2005.
+{``Global {Consequences} of {Land} {Use}.''} \emph{Science} 309 (5734):
+570--74. \url{https://doi.org/10.1126/science.1111772}.
+
+\bibitem[\citeproctext]{ref-ghavidel_evaluation_2016}
+Ghavidel, Raheleh, Ghorban Asadi, Mohammad Naseri, Pour Yazdi, Reza
+Ghorbani, and Surur Khorramdel. 2016. {``Evaluation of Radiation Use
+Efficiency of Common Bean ({Phaseolus} Vulgaris {L}.) Cultivars as
+Affected by Plant Density Under {Mashhad} Climatic Conditions.''}
+\emph{J. BioSci. Biotechnol.} 5 (2): 145--50.
+
+\bibitem[\citeproctext]{ref-hammer_computer_2009}
+Hammer, G. 2009. {``Computer Session: Yield Prediction, Simulation of
+the Genotype {X} Environment Interaction with an {Excel} Version of
+{APSIM}.''}
+
+\bibitem[\citeproctext]{ref-keating_overview_2003}
+Keating, B. A, P. S Carberry, G. L Hammer, M. E Probert, M. J Robertson,
+D Holzworth, N. I Huth, et al. 2003. {``An Overview of {APSIM}, a Model
+Designed for Farming Systems Simulation.''} \emph{European Journal of
+Agronomy}, Modelling {Cropping} {Systems}: {Science}, {Software} and
+{Applications}, 18 (3): 267--88.
+\url{https://doi.org/10.1016/S1161-0301(02)00108-9}.
+
+\bibitem[\citeproctext]{ref-lin_effects_2013}
+Lin, Kuan-Hung, Meng-Yuan Huang, Wen-Dar Huang, Ming-Huang Hsu, Zhi-Wei
+Yang, and Chi-Ming Yang. 2013. {``The Effects of Red, Blue, and White
+Light-Emitting Diodes on the Growth, Development, and Edible Quality of
+Hydroponically Grown Lettuce (\emph{{Lactuca} Sativa} {L}. Var.
+\emph{Capitata}).''} \emph{Scientia Horticulturae} 150 (February):
+86--91. \url{https://doi.org/10.1016/j.scienta.2012.10.002}.
+
+\bibitem[\citeproctext]{ref-mccown_apsim_1996}
+McCown, R. L., G. L. Hammer, J. N. G. Hargreaves, D. P. Holzworth, and
+D. M. Freebairn. 1996. {``{APSIM}: A Novel Software System for Model
+Development, Model Testing and Simulation in Agricultural Systems
+Research.''} \emph{Agricultural Systems} 50 (3): 255--71.
+\url{https://doi.org/10.1016/0308-521X(94)00055-V}.
+
+\bibitem[\citeproctext]{ref-mudare_yield_2022}
+Mudare, Shingirai, Jasper Kanomanyanga, Xiaoqiang Jiao, Stanford Mabasa,
+Jay Ram Lamichhane, Jingying Jing, and Wen-Feng Cong. 2022. {``Yield and
+Fertilizer Benefits of Maize/Grain Legume Intercropping in {China} and
+{Africa}: {A} Meta-Analysis.''} \emph{Agronomy for Sustainable
+Development} 42 (5): 81.
+\url{https://doi.org/10.1007/s13593-022-00816-1}.
+
+\bibitem[\citeproctext]{ref-munns_comparative_2002}
+Munns, R. 2002. {``Comparative Physiology of Salt and Water Stress.''}
+\emph{Plant, Cell \& Environment} 25 (2): 239--50.
+https://doi.org/\url{https://doi.org/10.1046/j.0016-8025.2001.00808.x}.
+
+\bibitem[\citeproctext]{ref-nassary_productivity_2020}
+Nassary, Eliakira Kisetu, Frederick Baijukya, and Patrick Alois
+Ndakidemi. 2020. {``Productivity of Intercropping with Maize and Common
+Bean over Five Cropping Seasons on Smallholder Farms of {Tanzania}.''}
+\emph{European Journal of Agronomy} 113 (February): 125964.
+\url{https://doi.org/10.1016/j.eja.2019.125964}.
+
+\bibitem[\citeproctext]{ref-ogindo_determination_2004}
+Ogindo, H. O., and S. Walker. 2004. {``The Determination of
+Transpiration Efficiency Coefficient for Common Bean.''} \emph{Physics
+and Chemistry of the Earth, Parts A/B/C}, Water, {Science}, {Technology}
+and {Policy} {Convergence} and {Action} by {All} ({A} {Meeting} {Point}
+for {Action} leading to {Sustainable} {Development}), 29 (15): 1083--89.
+\url{https://doi.org/10.1016/j.pce.2004.09.025}.
+
+\bibitem[\citeproctext]{ref-rouphael_radiation_2005}
+Rouphael, Youssef, and Giuseppe Colla. 2005. {``Radiation and Water Use
+Efficiencies of Greenhouse Zucchini Squash in Relation to Different
+Climate Parameters.''} \emph{European Journal of Agronomy} 23 (2):
+183--94. \url{https://doi.org/10.1016/j.eja.2004.10.003}.
+
+\bibitem[\citeproctext]{ref-tremblay_comparison_2004}
+Tremblay, Marie, and Daniel Wallach. 2004. {``Comparison of Parameter
+Estimation Methods for Crop Models.''} \emph{Agronomie} 24 (6-7):
+351--65. \url{https://doi.org/10.1051/agro:2004033}.
+
+\bibitem[\citeproctext]{ref-yara_panorama_2018}
+Yara, France. 2018. {``Panorama de La Culture Du Maïs.''} \emph{Yara
+France}.
+\url{https://www.yara.fr/fertilisation/solutions-pour-cultures/mais/panorama-culture-mais/}.
+
+\bibitem[\citeproctext]{ref-zhang_using_2003}
+Zhang, Fusuo, and Long Li. 2003. {``Using Competitive and Facilitative
+Interactions in Intercropping Systems Enhances Crop Productivity and
+Nutrient-Use Efficiency.''} \emph{Plant and Soil} 248 (1): 305--12.
+\url{https://doi.org/10.1023/A:1022352229863}.
+
+\end{CSLReferences}
+
+\end{document}
