@@ -1918,16 +1918,24 @@ utilisés</h2>
 (.xls, .xlsx) en important les feuilles de calcul sous forme de data
 frames.</p></li>
 <li><p><em>dplyr</em> et <em>tidyr</em> : offrent un ensemble de
-fonctions (p. ex. filter(), select(), mutate() ) pour nettoyer,
+fonctions (p. ex. filter(), select(), mutate()) pour nettoyer,
 transformer et reformater les données de façon claire et
 fluide.</p></li>
+<li><p><em>tibble</em> : fournit une version moderne des data frames,
+plus strictes et plus lisibles, avec un meilleur affichage dans la
+console.</p></li>
+</ul></li>
+<li><p><strong>Rapports et mise en forme</strong></p>
+<ul>
+<li><em>knitr</em> : facilite la génération de rapports dynamiques (R
+Markdown, LaTeX, HTML) en mélangeant code R et texte narratif.</li>
 </ul></li>
 <li><p><strong>Visualisation</strong></p>
 <ul>
 <li><em>ggplot2</em> : propose un système de grammaire graphique
 puissant pour créer des graphiques élégants et personnalisables
 (histogrammes, nuages de points, séries temporelles, etc.) à partir de
-de data frames.</li>
+data frames.</li>
 </ul></li>
 <li><p><strong>Accès et traitement de données web</strong></p>
 <ul>
@@ -1938,12 +1946,24 @@ ressources distantes.</p></li>
 inversement), ce qui rend l’exploitation des réponses d’API et le
 stockage des données JSON plus accessibles.</p></li>
 </ul></li>
+<li><p><strong>Programmation fonctionnelle</strong></p>
+<ul>
+<li><em>purrr</em> : offre un ensemble de fonctions pour la
+programmation fonctionnelle en R (p. ex. map(), reduce()) et le
+traitement vectorisé de listes.</li>
+</ul></li>
 <li><p><strong>Modélisation statistique</strong></p>
 <ul>
-<li><em>lme4</em> : permet d’ajuster des modèles linéaires et
+<li><p><em>lme4</em> : permet d’ajuster des modèles linéaires et
 généralisés à effets mixtes (fonctions lmer(), glmer(), etc.) pour
 prendre en compte à la fois des effets fixes et des effets
-aléatoires.</li>
+aléatoires.</p></li>
+<li><p><em>broom</em> : convertit les résultats de modèles statistiques
+en data frames « tidy » pour un traitement et un reporting facilités
+(tidy(), glance(), augment()).</p></li>
+<li><p><em>multcomp</em> : fournit des outils pour réaliser des
+comparaisons multiples (tests de Tukey, Dunnett, etc.) à partir de
+modèles linéaires et mixtes.</p></li>
 </ul></li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Packages requis</span></span>
@@ -2169,7 +2189,6 @@ météo</h3>
 cultures</h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>Densite1 <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="co"># Densité de la culture 1 </span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Densite2 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">-</span>Densite1 <span class="co"># Densité de la culture 2 </span></span></code></pre></div>
-<div style="page-break-after: always;"></div>
 </div>
 </div>
 <div id="modèles-utilisés" class="section level2" number="3.3">
@@ -2701,7 +2720,6 @@ cultures</h2>
 en eau disponible afin de préserver la cohérence physique du modèle et
 d’éviter toute instabilité ou erreur mathémaique lors des calculs des
 jours suivants.</p>
-<div style="page-break-after: always;"></div>
 </div>
 <div id="modélisation-de-lévolution-de-la-culture" class="section level2" number="4.2">
 <h2><span class="header-section-number">4.2</span> Modélisation de
@@ -3303,7 +3321,6 @@ associations préservent assez bien l’efficacité hydrique du système,
 alors que l’interculture avec courge chute nettement (4,40), la courge
 mobilisant beaucoup d’eau pour un gain de biomasse moindre, d’où une
 moindre efficacité.</p>
-<div style="page-break-after: always;"></div>
 </div>
 </div>
 <div id="analyse-de-sensibilité-modification-de-la-densité" class="section level2" number="4.3">
@@ -3391,7 +3408,7 @@ densité 0,5–0,7 en interculture maïs–haricot peut être optimal.</p></li>
 ## Linear Hypotheses:
 ##                                     Estimate Std. Error t value Pr(&gt;|t|)    
 ## Maïs + Courge - Maïs + Haricot == 0  -59.156      8.321  -7.110  &lt; 0.001 ***
-## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339  0.00766 ** 
+## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339  0.00771 ** 
 ## Maïs + Salade - Maïs + Courge == 0    86.938      8.321  10.449  &lt; 0.001 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
@@ -3416,7 +3433,6 @@ gagner 86.9 g·m⁻² de biomasse de plus que la courge (p &lt;
 maïs dans l’ordre décroissant :<br />
 Salade &gt; Haricot &gt; Courge avec des différences de l’ordre de 30–90
 g·m⁻² selon les associations.</p>
-<div style="page-break-after: always;"></div>
 </div>
 <div id="relation-entre-les-racines-et-la-production-de-biomasse" class="section level2" number="4.4">
 <h2><span class="header-section-number">4.4</span> Relation entre les
@@ -3791,6 +3807,7 @@ la production de maïs (monoculture ou intercalée avec salade) ou pour
 équilibrer les rendements de systèmes maïs–légumineuse (haricot,
 courge), tout en préparant le terrain pour intégrer d’autres services
 écosystémiques (fertilité, biodiversité).</p>
+<div style="page-break-after: always;"></div>
 </div>
 <div id="collaboration" class="section level1" number="6">
 <h1><span class="header-section-number">6</span> Collaboration</h1>

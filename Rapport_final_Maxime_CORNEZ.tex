@@ -433,8 +433,21 @@ utilisés}\label{packages-et-outils-utilisuxe9s}
     frames.
   \item
     \emph{dplyr} et \emph{tidyr} : offrent un ensemble de fonctions
-    (p.~ex. filter(), select(), mutate() ) pour nettoyer, transformer et
+    (p.~ex. filter(), select(), mutate()) pour nettoyer, transformer et
     reformater les données de façon claire et fluide.
+  \item
+    \emph{tibble} : fournit une version moderne des data frames, plus
+    strictes et plus lisibles, avec un meilleur affichage dans la
+    console.
+  \end{itemize}
+\item
+  \textbf{Rapports et mise en forme}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{knitr} : facilite la génération de rapports dynamiques (R
+    Markdown, LaTeX, HTML) en mélangeant code R et texte narratif.
   \end{itemize}
 \item
   \textbf{Visualisation}
@@ -445,7 +458,7 @@ utilisés}\label{packages-et-outils-utilisuxe9s}
     \emph{ggplot2} : propose un système de grammaire graphique puissant
     pour créer des graphiques élégants et personnalisables
     (histogrammes, nuages de points, séries temporelles, etc.) à partir
-    de de data frames.
+    de data frames.
   \end{itemize}
 \item
   \textbf{Accès et traitement de données web}
@@ -461,14 +474,31 @@ utilisés}\label{packages-et-outils-utilisuxe9s}
     stockage des données JSON plus accessibles.
   \end{itemize}
 \item
-  \textbf{Modélisation statistique}
+  \textbf{Programmation fonctionnelle}
 
   \begin{itemize}
   \tightlist
   \item
+    \emph{purrr} : offre un ensemble de fonctions pour la programmation
+    fonctionnelle en R (p.~ex. map(), reduce()) et le traitement
+    vectorisé de listes.
+  \end{itemize}
+\item
+  \textbf{Modélisation statistique}
+
+  \begin{itemize}
+  \item
     \emph{lme4} : permet d'ajuster des modèles linéaires et généralisés
     à effets mixtes (fonctions lmer(), glmer(), etc.) pour prendre en
     compte à la fois des effets fixes et des effets aléatoires.
+  \item
+    \emph{broom} : convertit les résultats de modèles statistiques en
+    data frames « tidy » pour un traitement et un reporting facilités
+    (tidy(), glance(), augment()).
+  \item
+    \emph{multcomp} : fournit des outils pour réaliser des comparaisons
+    multiples (tests de Tukey, Dunnett, etc.) à partir de modèles
+    linéaires et mixtes.
   \end{itemize}
 \end{itemize}
 
@@ -721,8 +751,6 @@ cultures}\label{densituxe9-des-deux-cultures}
 \NormalTok{Densite2 }\OtherTok{\textless{}{-}} \DecValTok{1}\SpecialCharTok{{-}}\NormalTok{Densite1 }\CommentTok{\# Densité de la culture 2 }
 \end{Highlighting}
 \end{Shaded}
-
-\newpage
 
 \subsection{Modèles utilisés}\label{moduxe8les-utilisuxe9s}
 
@@ -1339,8 +1367,6 @@ La transpiration totale doit systématiquement être limitée à l'offre en
 eau disponible afin de préserver la cohérence physique du modèle et
 d'éviter toute instabilité ou erreur mathémaique lors des calculs des
 jours suivants.
-
-\newpage
 
 \subsection{Modélisation de l'évolution de la
 culture}\label{moduxe9lisation-de-luxe9volution-de-la-culture}
@@ -2001,8 +2027,6 @@ alors que l'interculture avec courge chute nettement (4,40), la courge
 mobilisant beaucoup d'eau pour un gain de biomasse moindre, d'où une
 moindre efficacité.
 
-\newpage
-
 \subsection{Analyse de sensibilité : modification de la
 densité}\label{analyse-de-sensibilituxe9-modification-de-la-densituxe9}
 
@@ -2108,9 +2132,9 @@ finale en interculture :
 ## 
 ## Linear Hypotheses:
 ##                                     Estimate Std. Error t value Pr(>|t|)    
-## Maïs + Courge - Maïs + Haricot == 0  -59.156      8.321  -7.110  < 0.001 ***
-## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339  0.00759 ** 
-## Maïs + Salade - Maïs + Courge == 0    86.938      8.321  10.449  < 0.001 ***
+## Maïs + Courge - Maïs + Haricot == 0  -59.156      8.321  -7.110   <1e-04 ***
+## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339   0.0077 ** 
+## Maïs + Salade - Maïs + Courge == 0    86.938      8.321  10.449   <1e-04 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## (Adjusted p values reported -- single-step method)
@@ -2141,8 +2165,6 @@ On peut donc classer l'impact des intercultures sur la biomasse du maïs
 dans l'ordre décroissant :\\
 Salade \textgreater{} Haricot \textgreater{} Courge avec des différences
 de l'ordre de 30--90 g·m⁻² selon les associations.
-
-\newpage
 
 \subsection{Relation entre les racines et la production de
 biomasse}\label{relation-entre-les-racines-et-la-production-de-biomasse}
@@ -2542,6 +2564,8 @@ la production de maïs (monoculture ou intercalée avec salade) ou pour
 équilibrer les rendements de systèmes maïs--légumineuse (haricot,
 courge), tout en préparant le terrain pour intégrer d'autres services
 écosystémiques (fertilité, biodiversité).
+
+\newpage
 
 \section{Collaboration}\label{collaboration}
 
