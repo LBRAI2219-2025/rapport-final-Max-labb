@@ -24,20 +24,34 @@ subtitle: Modèle APSIM pour deux cultures
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
 ```
-
+\newpage
 # Résumé
 
-> Résumé du travail, reprenant les résultats principaux et les perspectives.
+Cette étude présente le développement et l’évaluation d’un modèle dualisé basé sur APSIM pour simuler la co-culture de maïs et d’une seconde espèce (courge, haricot ou salade) sur un profil de sol en trois horizons. Partant d’un simulateur monoculture validé (vérification de la cohérence hydrique : transpiration ≤ offre en eau), nous avons étendu la procédure afin de répartir quotidiennement la ressource hydrique entre les deux cultures, proportionnellement à leurs demandes relatives, tout en conservant les dynamiques racinaires et foliaires propres à chaque espèce. Les simulations sur 30 jours (30–60 DAS) ont permis de comparer :
 
+-   les réserves d’eau résiduelles (horizons 1–3),
+
+-   le ratio Offre/Demande (O/D) journalier et le nombre de jours de stress hydrique (O/D \< 1),
+
+-   la production de biomasse cumulée,
+
+-   l’efficience d’usage de l’eau (WUE) pour chaque scénario.
+
+Les résultats montrent qu’en monoculture, le maïs atteint 416 g·m⁻² à J60 (pente de 12 g·m⁻²·j⁻¹) et une WUE de 5,48 g·m⁻²/mm. En interculture, la biomasse maïs chute de 33–58 % selon l’espèce associée, tandis que l’espèce secondaire capte jusqu’à 120–130 g·m⁻². La densité relative du maïs (0,1–0,9) et le choix de l’associé influencent significativement (ANOVA p \< 10⁻⁹) la biomasse finale. Les analyses de sensibilité révèlent qu’une faible densité de maïs limite modérément la perte de rendement (salade \> haricot \> courge).
+
+\newpage
 # Introduction
 
 ## État de l'art
 
 L'agriculture moderne est soumise à de nombreux défis à l'heure actuelle : elle se doit de produire assez pour nourrir la population mondiale, tout en respectant au mieux l'environnement et en s'adaptant aux changements climatiques. Or, les terres disponibles pour l'agriculture ne sont pas illimitées et la pression sur les ressources naturelles est de plus en plus forte. De plus, les ressources en eau et en terre ne sont pas distribuées de manière égale sur la planète, ce qui rend la tâche encore plus complexe [@dudgeon_freshwater_2006].\
 L'agriculture dépend de ces deux ressources presque autant qu'elle dépend du soleil, or avec l'augmentation de la population mondiale et les changements climatiques, la disponibilité de l'eau et des terres agricoles est mise à rude épreuve.\
-Aujourd'hui, si on combine les terres arables et les prairies,ces deux biomes sont les plus présent à la surface de la Terre, occupant environ 40 % de la surface terrestre. En outre, les terres agricoles sont souvent utilisées de manière intensive, avec des pratiques telles que la monoculture, l'utilisation excessive d'engrais et de pesticides, et la déforestation pour créer de nouvelles terres agricoles. Ces pratiques ont des conséquences néfastes sur l'environnement, notamment la perte de biodiversité, la dégradation des sols et la pollution de l'eau [@foley_global_2005].
+Aujourd'hui, si l'on combine les terres arables et les prairies,ces deux biomes sont les plus présent à la surface de la Terre, occupant environ 40 % de la surface terrestre. En outre, les terres agricoles sont souvent utilisées de manière intensive, avec des pratiques telles que la monoculture, l'utilisation excessive d'engrais et de pesticides, et la déforestation pour créer de nouvelles terres agricoles. Ces pratiques ont des conséquences néfastes sur l'environnement, notamment la perte de biodiversité, la dégradation des sols et la pollution de l'eau [@foley_global_2005].
 
 \
 La recherche agronomique s'est orientée vers des pratiques agricoles plus durables, telles que l'agroécologie, l'agriculture de conservation et la permaculture. Ces pratiques visent à réduire l'impact environnemental de l'agriculture tout en maintenant des rendements élevés. Elles reposent sur une meilleure compréhension des interactions entre les plantes, les sols et les écosystèmes, ainsi que sur l'utilisation de techniques de gestion intégrée des cultures [@bondeau_modelling_2007].
@@ -65,6 +79,7 @@ Comme l'a dit Samuel P. Huntington "Nous avons besoin de modèles explicites ou 
 
 Le modèle APSIM (pour Agricultural Production Systems sIMulator) est un modèle de simulation de culture qui permet de simuler la croissance des cultures, la dynamique du sol et les interactions entre les plantes et l'environnement. Il a été développé en 1995 par une équipe multiuniversitaire et est encore utilisé et amélioré à ce jour. APSIM est un modèle modulaire, ce qui signifie qu'il peut être adapté à différents systèmes agricoles et à différentes conditions environnementales. Il est capable de simuler la croissance des cultures en tenant compte des facteurs climatiques, hydriques et nutritionnels, ainsi que des interactions entre les plantes et le sol [@mccown_apsim_1996; @keating_overview_2003].\
 
+\newpage
 # Matériel et méthodes
 
 ## Modèles
@@ -94,7 +109,7 @@ Le plan de modélisation est structuré comme suit :
 
 5.  Analyse et comparaison des résultats.
 
-## Packages
+## Packages et outils utilisés
 
 -   **Importation et manipulation de données**
 
@@ -112,23 +127,33 @@ Le plan de modélisation est structuré comme suit :
 
     -   *jsonlite* : convertit des fichiers JSON en objets R (et inversement), ce qui rend l’exploitation des réponses d’API et le stockage des données JSON plus accessibles.
 
+-   **Modélisation statistique**
+
+    -   *lme4* : permet d’ajuster des modèles linéaires et généralisés à effets mixtes (fonctions lmer(), glmer(), etc.) pour prendre en compte à la fois des effets fixes et des effets aléatoires.
+
 ```{r package-setup, include=TRUE, message=FALSE, warning=FALSE}
 # Packages requis
 library(readxl)
 library(dplyr)
 library(tidyr)
+library(knitr)
+library(tibble)
+library(lme4)
 library(ggplot2)
 library(jsonlite)
 library(httr)
+library(broom)
+library(purrr)
+library(multcomp)
 ```
 
-## Données d'entrée
+ChatGPT a été utilisé a des fins de reformulations de phrases, l'entièreté du texte a été relu, vérifié et approuvé. \## Données d'entrée
 
 ### Paramètres des cultures
 
 Dans la mesure du possible, les paramètres ont été extraits de la littérature. Lorsque certaines données faisaient défaut, des extrapolations ont été réalisées à partir des connaissances acquises au cours de ma formation, dans un but de différenciation de l'espèce par rapport au maïs. Seules les données relatives au maïs peuvent être considérées comme pleinement fiables, puisqu’elles proviennent d'un exercice pratique donné par le professeur Draye [@draye_practical_nodate , @lin_effects_2013, @ghavidel_evaluation_2016, @ogindo_determination_2004, @rouphael_radiation_2005].
 
-```{r paramètres de culture, include=TRUE}
+```{r param_culture, include=TRUE, message=FALSE, warning=FALSE}
 
 mais <- list(
   RUE               = 1.6,   # Radiation Use Efficiency [g/MJ]
@@ -184,10 +209,10 @@ salade <- list(
 
 ### Paramètres du sol
 
-Paramètres générés artificiellement pour avoir un sol d' 1m d'épaisseur contenant un minimum de 40mm d'eau et un maximum de 100mm d'eau.\
+Paramètres générés artificiellement pour avoir un sol d' 1m d'épaisseur contenant un minimum de 40mm d'eau et un maximum de 100mm d'eau. Les scénarios envisagés ne prévoient pas de recharge des horizons par précipitation d'une quelconque autre façon.\
 L'hyphothèse que le kl est une valeur propre au sol a été posée pour simplifier les calculs. En réalité, le kl est variable selon de nombreux critères propres au sol et aux plantes occupant le sol.
 
-```{r paramètres du sol, include=TRUE}
+```{r param_sol, include=TRUE, message=FALSE, warning=FALSE}
 
 soil_params <- data.frame(
   Horizon     = c(1, 2, 3),
@@ -202,7 +227,7 @@ soil_params <- data.frame(
 
 ### Expansion foliaire
 
-```{r expansion foliaire, include=TRUE}
+```{r exp_foliaire, include=TRUE, message=FALSE, warning=FALSE}
 # Culture 1
 expansion_foliaire <- data.frame(
   OD  = c(0.5, 1.5, 4), # Offre sur demande
@@ -219,7 +244,7 @@ expansion_foliaire2 <- data.frame(
 
 ### Paramètres météo
 
-```{r chargement des données météo, include=TRUE, message=FALSE, warning=FALSE}
+```{r param_meteo, include=TRUE, message=FALSE, warning=FALSE}
 
 # Données météo réelles 
 lat <- 50.666265; lon <- 4.622322   # Localisation de la zone d'étude : 50.666265 ; 4.622322 = batiment De serres
@@ -309,17 +334,16 @@ facteur_externe$VPDcalc <- calc_VPDcalc(
   VPDfrac  = VPDfrac
 )
 
-###############################################################################
 # Choix de la source de données : "reel" ou "artificiel" (switch)
-###############################################################################
-data_source <- "artificiel"    # mettre "artificiel" si on veux le jeu généré
+
+data_source <- "artificiel"    # mettre "artificiel" si on veut le jeu généré
 
 if (data_source == "reel") {
   facteur_externe <- meteo_df %>%
-    select(Jours, Radiation, Tmax, Tmin, VPDcalc)
+    dplyr::select(Jours, Radiation, Tmax, Tmin, VPDcalc)
 } else if (data_source == "artificiel") {
   facteur_externe <- facteur_externe %>%
-    select(Jours, Radiation, Tmax, Tmin, VPDcalc)
+    dplyr::select(Jours, Radiation, Tmax, Tmin, VPDcalc)
 } else {
   stop("data_source doit être 'reel' ou 'artificiel'")
 }
@@ -327,19 +351,19 @@ if (data_source == "reel") {
 
 ### Densité des deux cultures
 
-```{r densité des cultures, include=TRUE}
+```{r densite_culture, include=TRUE, message=FALSE, warning=FALSE}
 Densite1 <- 0.5 # Densité de la culture 1 
 Densite2 <- 1-Densite1 # Densité de la culture 2 
 ```
 
+\newpage
 ## Modèles utilisés
+
 ### APSIM monoculture
-```{r Apsim mono, include=TRUE, message=FALSE, warning=FALSE}
+
+```{r apsim_mono, include=TRUE, message=FALSE, warning=FALSE}
 
 # Ce script simule la croissance d'une culture en fonction de l'eau disponible et de la radiation solaire pour une seule culture
-###############################################################################
-# Modèle
-###############################################################################
 
 simulate <- function(facteur_externe, soil_params, culture_params, expansion_foliaire) {
   n_days <- nrow(facteur_externe)
@@ -371,7 +395,11 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
     Biomasse_2 = numeric(n_days),
     O_D = numeric(n_days),
     Biomasse_reelle = numeric(n_days),
-    Biomasse_cumulee = numeric(n_days)
+    Biomasse_cum = numeric(n_days),
+    ES1 = numeric(n_days),
+    ES2 = numeric(n_days),
+    ES3 = numeric(n_days),
+    rdepth = numeric(n_days)
   )
   results$LAI[1] <- LAI_dyn[1]
   
@@ -402,6 +430,8 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
     # La profondeur racinaire effective est limitée par la somme des épaisseurs
     profondeur_totale <- sum(soil_params$Epaisseur)
     rdepth <- min(DAS * culture_params$VPR, profondeur_totale)
+    results$rdepth[i] <- rdepth
+
     
     # Calcul des offres potentielles pour chaque horizon
     of1 <- ifelse(rdepth >= soil_params$Epaisseur[1], 1, rdepth / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
@@ -456,6 +486,10 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
       }
     }
   }
+  # Stockage des réserves d'eau dans le data frame des résultats
+  results$ES1 <- ES1
+  results$ES2 <- ES2
+  results$ES3 <- ES3
   
   # Calcul des indices et biomasses après simulation
   results$I <- 1 - exp(-culture_params$k * results$LAI)
@@ -463,17 +497,42 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
   results$Biomasse_2 <- facteur_externe$Radiation * culture_params$RUE * results$I
   results$O_D <- ifelse(results$Pot_Demand == 0, 0, results$Pot_Supply / results$Pot_Demand)
   results$Biomasse_reelle <- ifelse(results$O_D > 1, results$Biomasse_2, results$Biomasse_1)
-  results$Biomasse_cumulee <- culture_params$Biomasse_initiale + cumsum(results$Biomasse_reelle)
+  results$Biomasse_cum <- culture_params$Biomasse_initiale + cumsum(results$Biomasse_reelle)
   
   return(results)
 }
 ```
 
-```{r Apsim duo, include=TRUE, message=FALSE, warning=FALSE}
+Le modèle apsim mono simule jour après jour l’équilibre entre l’offre en eau du sol et la demande hydrique induite par la radiation solaire, pour en déduire la croissance foliaire (LAI) et la production de biomasse.
+
+1.  **Réserves d’eau par horizon\
+    **On initialise trois stocks d’eau (ES1, ES2, ES3) correspondant aux horizons du sol. À chaque pas de temps, la profondeur racinaire (rdepth) — croissante linéairement avec le jour après semis jusqu’à une limite totale — détermine la fraction de chaque horizon accessible à la plante. La « pot_supply » journalière est la somme des extractions potentielles sur chacun des trois horizons, calculées proportionnellement à la réserve restante et au coefficient d’extraction kl.
+
+2.  **Demande hydrique potentielle\
+    **L’effet lumineux (LI) est obtenu par la loi de Beer-Lambert $(LI = 1 – exp(-k × LAI))$, puis la demande potentielle d’eau est calculée en combinant la radiation incidente (Rad), l’efficacité d’usage de la radiation RUE, l’effet de la VPD et le coefficient de transpiration TEc.
+
+3.  **Transpiration réelle et mise à jour du sol\
+    **La transpiration quotidienne est le minimum entre l’offre et la demande. On retire alors de chaque horizon la fraction de cette transpiration proportionnelle à l’offre que cet horizon a contribué à la pot_supply, garantissant que l’on n’extrait jamais plus d’eau que disponible.
+
+4.  **Expansion foliaire\
+    **Le ratio offre/demande (O/D) donne un indicateur de stress hydrique. Il alimente une table d’expansion foliaire (OD vs CEF) pour calculer le gain de LAI potentiel (delta_LAI). Le LAI est ainsi mis à jour pour le pas suivant, fermant la boucle rétroactive entre disponibilité en eau et surface foliaire.
+
+**Production de biomasse\
+**En post-traitement, deux biomasses journalières sont calculées :
+
+1.  **Biomasse à l’eau** : proportionnelle à la transpiration et à l’efficacité TEc,
+
+2.  **Biomasse à la lumière** : proportionnelle à la radiation et à RUE.
+
+    La biomasse « réelle » retenue à chaque jour est choisie selon le ratio O/D (si \> 1, production illimitée par l’eau, sinon limitée par la transpiration). Enfin, la biomasse cumulée est obtenue par somme des productions journalières à partir de la biomasse initiale.
+
+Grâce à cette architecture, le modèle relie explicitement (1) la dynamique racinaire et la déplétion des réserves du sol, (2) l’arbitrage offre/demande hydrique via l’extension foliaire, et (3) la conversion de l’eau et de la lumière en biomasse, offrant ainsi un outil simple mais fidèle pour étudier la croissance sous contrainte hydrique.
+
+### APSIM combinant deux cultures
+
+```{r apsim_duo, include=TRUE, message=FALSE, warning=FALSE}
 # Ce script simule la croissance de deux cultures en interculture en tenant compte de l'eau disponible et de la radiation solaire
-###############################################################################
-# Modèle
-###############################################################################
+
 # Densite des deux cultures
 Densite1 <- 0.5 # Densité de la culture 1 
 Densite2 <- 1-Densite1 # Densité de la culture 2 
@@ -514,26 +573,31 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
   # Préparation d'un data frame pour stocker les résultats quotidiens
   results <- data.frame(
     Jour = facteur_externe$Jours,
-    Tot_ES = numeric(n_days),         # Eau totale dans le sol
-    Pot_Supply = numeric(n_days),     # Offre potentielle globale du sol
-    Pot_Demand1 = numeric(n_days),    # Demande potentielle culture 1
-    Pot_Demand2 = numeric(n_days),    # Demande potentielle culture 2
-    sdratio1 = numeric(n_days),       # Offre/Demande culture 1
-    sdratio2 = numeric(n_days),       # Offre/Demande culture 2
-    Transpiration1 = numeric(n_days), # Transpiration culture 1
-    Transpiration2 = numeric(n_days), # Transpiration culture 2
-    LAI1 = numeric(n_days),           # LAI culture 1
-    LAI2 = numeric(n_days),           # LAI culture 2
-    rdepth = numeric(n_days),         # Profondeur racinaire culture 1
-    rdepth2 = numeric(n_days),        # Profondeur racinaire culture 2
-    Biomasse1 = numeric(n_days),      # Biomasse journalière culture 1
-    Biomasse2 = numeric(n_days)       # Biomasse journalière culture 2
+    Tot_ES = numeric(n_days),              # Eau totale dans le sol
+    Pot_Supply = numeric(n_days),          # Offre potentielle globale du sol
+    Pot_Demand1 = numeric(n_days),         # Demande potentielle culture 1
+    Pot_Demand2 = numeric(n_days),         # Demande potentielle culture 2
+    sdratio1 = numeric(n_days),            # Offre/Demande culture 1
+    sdratio2 = numeric(n_days),            # Offre/Demande culture 2
+    Transpiration1_loc = numeric(n_days),  # Transpiration culture 1 si elle était seule
+    Transpiration2_loc = numeric(n_days),  # Transpiration culture 2 si elle était seule
+    Transpiration1 = numeric(n_days),      # Transpiration journalière culture 1 avec arbitrage
+    Transpiration2 = numeric(n_days),      # Transpiration journalière culture 2 avec arbitrage
+    LAI1 = numeric(n_days),                # LAI culture 1
+    LAI2 = numeric(n_days),                # LAI culture 2
+    rdepth = numeric(n_days),              # Profondeur racinaire culture 1
+    rdepth2 = numeric(n_days),             # Profondeur racinaire culture 2
+    Biomasse1 = numeric(n_days),           # Biomasse journalière culture 1
+    Biomasse2 = numeric(n_days),           # Biomasse journalière culture 2
+    ES1 = numeric(n_days),                 # Eau disponible horizon 1
+    ES2 = numeric(n_days),                 # Eau disponible horizon 2
+    ES3 = numeric(n_days)                  # Eau disponible horizon 3
   )
   
-  results$LAI1[1] <- LAI1[1]            # Initialisation du LAI1
-  results$LAI2[1] <- LAI2[1]            # Initialisation du LAI2
-  results$Biomasse1[1] <- Biomasse1[1]  # Initialisation de la biomasse journalière culture 1
-  results$Biomasse2[1] <- Biomasse2[1]  # Initialisation de la biomasse journalière culture 2
+  results$LAI1[1] <- LAI1[1]               # Initialisation du LAI1
+  results$LAI2[1] <- LAI2[1]               # Initialisation du LAI2
+  results$Biomasse1[1] <- Biomasse1[1]     # Initialisation de la biomasse journalière culture 1
+  results$Biomasse2[1] <- Biomasse2[1]     # Initialisation de la biomasse journalière culture 2
   
   # Fonction pour calculer l'effet d'expansion foliaire (interpolation sur la table OD/CEF)
   leaf_exp_effect <- function(sdratio, expansion_foliaire) {
@@ -578,9 +642,9 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     of3_c2 <- ifelse(rdepth2 <= sum(soil_params$Epaisseur[1:2]), 0,
                      (rdepth2 - sum(soil_params$Epaisseur[1:2])) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
     
-    Pot_Supply1 <- Densite1 * (of1_c1 + of2_c1 + of3_c1)  # offre potentielle culture 1
-    Pot_Supply2 <- Densite2 * (of1_c2 + of2_c2 + of3_c2)  # offre potentielle culture 2
-    Pot_Supply  <- Pot_Supply1 + Pot_Supply2              # totale
+    Pot_Supply1 <-  (of1_c1 + of2_c1 + of3_c1)  # offre potentielle culture 1
+    Pot_Supply2 <-  (of1_c2 + of2_c2 + of3_c2)  # offre potentielle culture 2
+    Pot_Supply  <- Pot_Supply1 + Pot_Supply2    # totale
     
     ## 3) Effet lumineux
     li1 <- 1 - exp(-culture_params$k  * LAI1[i])
@@ -603,8 +667,10 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     transp1 <- if (Pot_Demand1 > 0) TT1 * (Pot_Demand1 * Densite1) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0    # Transpiration culture 1 avec arbitrage de l'eau
     transp2 <- if (Pot_Demand2 > 0) TT2 * (Pot_Demand2 * Densite2) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0    # Transpiration culture 2 avec arbitrage de l'eau
     
-    results$Transpiration1[i] <- TT1
-    results$Transpiration2[i] <- TT2
+    results$Transpiration1_loc[i] <- TT1
+    results$Transpiration2_loc[i] <- TT2
+    results$Transpiration1[i] <- transp1
+    results$Transpiration2[i] <- transp2
     
     
     # Stockage de l'eau totale du sol
@@ -615,8 +681,10 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     # On calcule le ratio offre/demande pour chaque culture
     sdratio1 <- if (Pot_Demand1 > 0) Pot_Supply1 / Pot_Demand1 else 0 # =O/D culture 1
     sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply2 / Pot_Demand2 else 0 # =O/D culture 2
+    
     leaf_effect1 <- leaf_exp_effect(sdratio1, expansion_foliaire)
     leaf_effect2 <- leaf_exp_effect(sdratio2, expansion_foliaire2)
+    
     delta_LAI1 <- leaf_effect1 * culture_params$CroissPotLAI
     delta_LAI2 <- leaf_effect2 * culture2_params$CroissPotLAI
     
@@ -662,11 +730,81 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     }
   }  
   
+  # Stockage des réserves d'eau dans le data frame des résultats
+  results$ES1 <- ES1
+  results$ES2 <- ES2
+  results$ES3 <- ES3
+  
   return(results)
 }
 
 ```
 
+Le schéma général du modèle « mono » reste le même en version « duo », mais on y superpose deux jeux de variables (racines, LAI, biomasse, offre, demande, transpiration) et on ajoute une étape d’arbitrage de l’eau entre les deux cultures :
+
+1.  Profondeur racinaire
+
+    -   Mono : on calcule une seule profondeur maximale r en fonction du temps et de la vitesse de production racinaire.
+
+    -   Duo : on en calcule deux (rdepth, rdepth2), une pour chaque espèce, à partir de leurs vitesses de production racinaires respectives (vpr).
+
+2.  Offre potentielle d’eau par horizon\
+    Dans les deux versions, pour chaque horizon h ∈ {1,2,3} on évalue la fraction de racine active ou la proportion dans l’horizon multipliée par la réserve d’eau disponible $ES_i$ et le coefficient d’extraction $kl$.
+
+    -   Mono additionne simplement ces trois offres en une offre totale unique O.
+
+    -   Duo calcule deux offres totales O_1 et O_2, chacune pondérée par la densité de la culture (Densité1 ou Densité2), puis les somme pour obtenir l’offre globale.
+
+3.  Demande potentielle d’eau
+
+    -   Pour chaque culture, on calcule $\text{Demande} = \dfrac{\text{Radiation}\times LI\times RUE \times (\text{VPD}/10)}{TE_c}$ où $LI=1-e^{-k\times LAI}.$
+
+    -   Mono n’a qu’une seule demande, duo en a deux.
+
+4.  Transpiration journalière
+
+    -   Mono : $Transpiration =\min(Offre, \text{Demande})$ .
+
+    -   Duo : on commence par la transpiration « locale » de chaque culture si elle était seule $\min(O_i, \text{Demande}_i)$, puis on répartit la ressource limitée à partir d’un arbitrage proportionnel aux demandes pondérées par densité :\
+        $T_i = TT_i \times \frac{\text{Demande}_i\cdot Densité_i} {\sum_j \text{Demande}_j\cdot Densité_j}$
+
+5.  Mise à jour des réserves d’eau (ES)
+
+    1.  On peut définir, pour chaque horizon h, la fonction récursive des réserves d’eau
+
+        $ES_h : \{0,1,\dots,n\}\;\to\;\mathbb{R},$ ici n=3\
+        par$ES_h(t+1) = ES_h(t) -\sum_{c=1}^{2}\frac{of_{h}^{(c)}(t)}{O_{c}(t)}\,T_{c}(t)$
+
+        avec :
+
+        -   $of_{h}^{(c)}(t)$ : offre potentielle de l’horizon *h* pour la culture *c* au jour *t*,
+
+        -   $O_{c}(t)=\sum_{h} of_{h}^{(c)}(t)$ : offre totale de la culture *c* au jour *t*,
+
+        -   $T_{c}(t)$ : transpiration finale de la culture *c* au jour *t*.
+
+    Cette formule garantit que chaque espèce ne prélève que dans les horizons qu’elle atteint et ne dépasse pas son offre.
+
+6.  Croissance foliaire et biomasse
+
+    1.  On calcule pour chaque culture son ratio offre/demande $SD_i=O_i/\text{Demande}_i$, on en déduit l’effet d’expansion foliaire, puis on met à jour le LAI $\Delta LAI_i = \text{Leaf effect}_i (SD_i)\times \text{CroissPotLAI}_i$
+
+    2.  La production de biomasse journalière combine un terme hydrique $T_i$ et un terme lumineux $\text{Radiation}\times LI\times RUE$, selon que $SD_i$ ≥1 (lumière limitante) ou \<1 (eau limitante).
+
+En résumé, la version duo reproduit les mêmes étapes qu’en mono, appliquées séparément à chaque culture.\
+Elle ajoute :
+
+-   deux profondeurs racinaires et deux offres par horizon,
+
+-   deux demandes potentielles,
+
+-   un arbitrage fin de la transpiration quand l’eau devient limitante,
+
+-   deux mises à jour de LAI et de biomasse,
+
+-   Et une mise à jour conjointe des réserves du sol qui tient compte de la contribution de chaque espèce.
+
+\newpage
 # Résultats
 
 ## Simulation des cultures
@@ -691,17 +829,722 @@ resultats_mais_salade$Pot_Supply >= resultats_mais_salade$Transpiration1 + resul
 
 ```
 
-## Modélisation de l’évolution de la culture (bah oui)
+La transpiration totale doit systématiquement être limitée à l’offre en eau disponible afin de préserver la cohérence physique du modèle et d’éviter toute instabilité ou erreur mathémaique lors des calculs des jours suivants.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+\newpage
+## Modélisation de l’évolution de la culture
 
-## Couplage entre le modèle racinaire et le modèle de culture (remplacer par couplage de 2 cultures)
+### Évolution des réserves en eau du sol
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+```{r graphe-es, fig.align='center', fig.height=6, fig.width=6, message=FALSE, warning=FALSE, include=TRUE, out.width='70%'}
 
-## Analyse de l’interaction entre rendements et racines (kl ?)
+# 1) Concaténation de toutes les simulations en ajoutant une colonne Culture
+df_water_all <- bind_rows(
+  resultat_mais               %>% mutate(Culture = "Maïs seul"),
+  resultats_mais_haricot      %>% mutate(Culture = "Maïs + Haricot"),
+  resultats_mais_courge       %>% mutate(Culture = "Maïs + Courge"),
+  resultats_mais_salade       %>% mutate(Culture = "Maïs + Salade")
+) %>%
+  # 2) Sélection et mise en format long
+  dplyr::select(Culture, Jour, ES1, ES2, ES3) %>%
+  pivot_longer(
+    cols      = starts_with("ES"),
+    names_to  = "Horizon",
+    values_to = "Eau_mm"
+  )
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+# 3) Tracé en facettes
+ggplot(df_water_all, aes(x = Jour, y = Eau_mm, color = Horizon)) +
+  geom_line(size = 0.8) +
+  geom_point(size = 1.5) +
+  facet_wrap(~ Culture, ncol = 2) +
+  labs(
+    title = "Évolution des réserves d’eau par horizon",
+    x     = "DAS",
+    y     = "Eau disponible [mm]",
+    color = "Horizon"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(strip.text = element_text(face = "bold"))
+
+# 4) Table pour connaitre les niveaux d'eau à J60
+table_end60 <- df_water_all %>%
+  filter(Jour == 60) %>%
+  dplyr::select(Culture, Horizon, Eau_mm) %>%
+  pivot_wider(
+    names_from  = Horizon,
+    values_from = Eau_mm
+  )
+
+  # Affichage de la table
+  knitr::kable(
+    table_end60,
+    col.names = c("Scénario", "Horizon 1 (mm)", "Horizon 2 (mm)", "Horizon 3 (mm)"),
+    caption   = "Eau disponible à J60 par horizon et par scénario"
+  )
+```
+
+-   Épuisement prioritaire de l’horizon 1 :\
+    Dans tous les scénarios, c’est l’horizon superficiel (ES1) qui est le plus fortement vidé (de \~40 mm à \~6–7 mm entre J30 et J60). Les différences entre monoculture et intercultures sont faibles ici : ES1 résiduel compris entre 6,3 mm pour « Maïs+Courge » et 6,9 mm pour le maïs seul, ce qui montre que quel que soit le voisin, le maïs exploite d’abord la couche 1.
+-   Comportement divergent en horizon 2:\
+    En monoculture, ES2 passe de \~30 mm à seulement 7 mm résiduels à J60, alors que dans l’association maïs–salade, on observe 13,3 mm dans le deuxième horizon. Les intercultures « maïs+haricot » et « maïs+courge » conservent quant à elles \~7,4–7,9 mm. Cela suggère que la salade, vraisemblablement par un schéma racinaire plus superficiel ou une moindre demande transpiratoire, limite l’extraction dans la zone médiane.
+-   Réserve profonde dans l'horizon 3 :\
+    Quantitée d'eau résiduelle beaucoup plus élevée en interculture
+    -   Maïs seul : 11,4 mm résiduels
+    -   Maïs+Haricot : 18,7 mm
+    -   Maïs+Courge : 19,2 mm
+    -   Maïs+Salade : 19,9 mm
+    -   Le maïs en monoculture puise donc beaucoup plus profondément (ne laissant que \~11 mm) que lorsqu’il est associé à un autre couvert. Les intercultures conservent presque 2× plus d’eau dans le dernier horizon, signe d’une compétition réduite ou d’une complémentarité racinaire (chaque espèce « se partage » moins la ressource profonde).
+-   Implications agronomiques :
+    -   Monoculture : extraction forte et uniforme sur tout le profil, risque de stress plus précoce si la recharge est limitée.
+    -   Intercultures : moindre exploitation des horizons moyens et profonds par le maïs, avec une conservation potentielle de la ressource en eau pour les stades ultérieurs ou pour l’autre espèce.\
+        L’association maïs–salade est la plus économe en eau médiane et profonde, ce qui peut être recherché dans des systèmes à faible pluviométrie ou pour limiter le risque d’assèchement rapide.
+
+En résumé, si l’horizon 1 est systématiquement drainé en priorité, les intercultures modulent sensiblement l’exploitation des horizons 2 et 3 : la monoculture creuse le profil jusqu’au profond, alors que les coproductions – et tout particulièrement maïs–salade – laissent une part significative de ressource en eau dans les couches moyennes et profondes.
+
+```{r stats-descriptives, message=FALSE, warning=FALSE, include=TRUE}
+
+# Calcul des statistiques descriptives par culture et horizon
+df_stats <- df_water_all %>%
+  group_by(Culture, Horizon) %>%
+  summarise(
+    mean_Eau = mean(Eau_mm),
+    sd_Eau   = sd(Eau_mm),
+    .groups  = "drop"
+  )
+print(df_stats)
+```
+
+L’analyse des statistiques descriptives montre que, quel que soit le scénario, l’horizon 3 (ES3) conserve systématiquement les volumes d’eau les plus élevés (μ≈26–27 mm) et les variations les plus faibles (σ≈3–4 mm), ce qui reflète son rôle de réserve profonde moins exploitée par les racines au cours de la simulation.\
+En surface (ES1), les moyennes oscillent entre 18,5 mm (Maïs + Courge) et 19,4 mm (Maïs seul), avec des écarts-types relativement importants (σ≈10 mm) traduisant une forte variabilité journalière due aux fluctuations climatiques et à l’intensité d’extraction racinaire.\
+Pour l’horizon intermédiaire (ES2), on observe un léger gain d’eau disponible dans le scénario Maïs + Salade (μ=21,7 mm) par rapport aux autres (μ≈17 mm), suggérant une complémentarité racinaire qui réduit la concurrence sur ce niveau.\
+Enfin, le scénario Maïs seul présente la plus faible réserve moyenne en ES2 (16,2 mm), signe qu’en monoculture le sol intermédiaire est plus fortement exploité. Ces résultats confirment l’impact des associations culturales sur la distribution spatiale de l’extraction racinaire et mettent en évidence une meilleure préservation des ressources en interculture, notamment pour les horizons moyens et profonds.
+
+### Évolution du ratio Offre/Demande (O/D)
+
+```{r graphe-od-facets, fig.align='center', fig.height=6, fig.width=6, out.width='70%'}
+
+# 1) Concaténation de tous les scénarios
+df_od_all <- bind_rows(
+  resultat_mais               %>% mutate(Scenario = "Maïs seul")%>% rename(sdratio1 = O_D),
+  resultats_mais_haricot      %>% mutate(Scenario = "Maïs + Haricot"),
+  resultats_mais_courge       %>% mutate(Scenario = "Maïs + Courge"),
+  resultats_mais_salade       %>% mutate(Scenario = "Maïs + Salade")
+) %>%
+  pivot_longer(
+    cols = c(starts_with("sdratio")),
+    names_to  = "Culture",
+    values_to = "OD",
+    values_drop_na = TRUE
+  )
+
+# 3) Tracé en facettes
+ggplot(df_od_all, aes(x = Jour, y = OD, color = Culture)) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "black") +
+  geom_line(size = 0.8) +
+  geom_point(size = 1.5) +
+  facet_wrap(~ Scenario, ncol = 2) +
+  labs(
+    title = "Évolution des ratios Offre/Demande (O/D)",
+    x     = "DAS",
+    y     = "O/D",
+    color = "Culture"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(strip.text = element_text(face = "bold"))
+```
+
+Il est visible que, dans tous les scénarios, le ratio O/D pour la culture principale (courbe « sdratio1 », en rouge) démarre souvent au-dessus de 1 (offre abondante), mais chute plusieurs fois en dessous de 1 à partir du stade intermédiaire (DAS 35–40), témoignant d’épisodes transitoires de stress hydrique. La culture associée (courbe « sdratio2 », en bleu) reste presque toujours en dessous de 1, soulignant sa pression compétitive plus faible ou son enracinement plus superficiel. Il y a peu de différences entre les scénarios, cela est surement du à l'hypothèse que les deux cultures n'entrent pas en compétion pour la lumière, de fait elles suivent la même dynamique de O/D en fonction de la météo.
+
+```{r table-stress, echo=FALSE, message=FALSE, warning=FALSE}
+# 4) Calcul du nombre de jours de stress hydrique (O/D < 1) pour chaque scénario
+stress_df <- tibble(
+  Scenario   = c("Maïs seul", "Maïs + Haricot", "Maïs + Courge", "Maïs + Salade"),
+  DaysStress = c(
+    sum(resultat_mais$O_D < 1,             na.rm = TRUE),
+    sum((resultats_mais_haricot$sdratio1 < 1) | (resultats_mais_haricot$sdratio2 < 1), na.rm = TRUE),
+    sum((resultats_mais_courge$sdratio1 < 1)  | (resultats_mais_courge$sdratio2 < 1),  na.rm = TRUE),
+    sum((resultats_mais_salade$sdratio1 < 1)  | (resultats_mais_salade$sdratio2 < 1),  na.rm = TRUE)
+  )
+)
+
+# 5) Affichage sous forme de table
+kable(
+  stress_df,
+  col.names = c("Scénario", "Nombre de jours de stress hydrique"),
+  caption = "Tableau 1 : Jours où le ratio Offre/Demande (O/D) est inférieur à 1"
+)
+```
+
+Dans les trois intercultures, la répartition de l’eau entre les deux espèces conduit à un léger surcroît de jours de déficit pour le maïs (et globalement pour le système), car chacune prélève dans le même profil. L’interaction racinaire diminue l’offre relative disponible, même si le sol contient encore de l’eau. Cependant, cinq jours de déficit supplémentaires sur une période d'étude de soixante jours ne sont pas signficatifs.
+
+### Évolution de la biomasse
+
+```{r graphe-biomasse, fig.align='center', fig.height=6, fig.width=6, out.width='70%'}
+# 1) Concaténation de tous les scénarios
+df_biom_all <- bind_rows(
+  resultat_mais          %>% mutate(Scenario = "Maïs seul")%>% rename(Biomasse_cum1 = Biomasse_cum),
+  resultats_mais_haricot %>% mutate(Scenario = "Maïs + Haricot"),
+  resultats_mais_courge  %>% mutate(Scenario = "Maïs + Courge"),
+  resultats_mais_salade  %>% mutate(Scenario = "Maïs + Salade")
+) %>%
+  # 2) Pivot_longer sur les colonnes de biomasse cumulée
+  pivot_longer(
+    cols           = starts_with("Biomasse_cum"),
+    names_to       = "Culture",
+    values_to      = "Biomasse_gm2",
+    values_drop_na = TRUE    # on ne garde que les valeurs existantes
+  )
+
+# 3) Tracé en facettes
+ggplot(df_biom_all, aes(x = Jour, y = Biomasse_gm2, color = Culture)) +
+  geom_line(size = 0.8) +
+  geom_point(size = 1.5) +
+  facet_wrap(~ Scenario, ncol = 2) +
+  labs(
+    title = "Évolution de la biomasse cumulée selon le scénario",
+    x     = "DAS",
+    y     = "Biomasse cumulée (g·m⁻²)",
+    color = "Culture"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(strip.text = element_text(face = "bold"))
+```
+
+```{r table-biomasse, echo=FALSE, message=FALSE, warning=FALSE}
+
+# 1) On repart de df_biom_all, on repasse en large pour avoir cum1 et cum2
+ts_wide <- df_biom_all %>%
+  pivot_wider(
+    names_from  = Culture,
+    values_from = Biomasse_gm2,
+    values_fill = 0
+  )
+
+# 2) Pour chaque scénario, on calcule biomasses à J60 et pentes
+table_biom_slopes <- ts_wide %>%
+  group_by(Scenario) %>%
+  group_modify(~{
+    df <- .
+    # biomasse à J60 (dernier jour)
+    bm_mais   <- df$Biomasse_cum1[nrow(df)]
+    bm_total  <- df$Biomasse_cum1[nrow(df)] + df$Biomasse_cum2[nrow(df)]
+    # pentes
+    pente_mais  <- coef(lm(Biomasse_cum1 ~ Jour, data = df))["Jour"]
+    pente_total <- coef(lm((Biomasse_cum1 + Biomasse_cum2) ~ Jour, data = df))["Jour"]
+    tibble(
+      Biomasse_Mais_J60   = bm_mais,
+      Biomasse_Total_J60  = bm_total,
+      Pente_Mais          = pente_mais,
+      Pente_Total         = pente_total
+    )
+  }) %>%
+  ungroup()
+
+# 3) Affichage
+kable(
+  table_biom_slopes,
+  col.names = c(
+    "Scénario",
+    "Biomasse maïs à J60 (g·m⁻²)",
+    "Biomasse totale à J60 (g·m⁻²)",
+    "Pente maïs (g·m⁻²·j⁻¹)",
+    "Pente totale (g·m⁻²·j⁻¹)"
+  ),
+  digits  = c(0, 1, 1, 3, 3),
+  caption = "Tableau : biomasse à J60 et pentes journalières, par scénario"
+)
+
+```
+
+-   **Monoculture de maïs :\
+    **La production cumulée atteint **416,2 g·m⁻²** à 60 DAS, avec une pente journalière de **11,978 g·m⁻²·j⁻¹**, la plus forte de tous les scénarios. En l’absence de compétition racinaire et foliaire, toute la radiation et l’eau disponible profitent exclusivement au maïs, lui permettant de synthétiser plus et plus rapidement de la biomasse.
+
+-   **Maïs + Courge:**
+
+    -   Maïs : **175,8 g·m⁻²** à J 60, pente = 4,169 g·m⁻²·j⁻¹ =\> **–57,8 %** par rapport à la monoculture
+
+    -   Courge : 302,0–175,8 = 126,2 g·m⁻², pente = 7,188–4,169 = 3,019 g·m⁻²·j⁻¹
+
+    La courge capte une part significative des ressources (≈30 % de la biomasse totale), au prix d’une réduction d’environ 58 % de la production de maïs.
+
+-   **Maïs + Haricot**
+
+    -   Maïs : **243,6 g·m⁻²** à J 60, pente = 6,513 g·m⁻²·j⁻¹ =\> **–41,5 %** par rapport monoculture
+
+    -   Haricot : 367,9–243,6 = 124,3 g·m⁻², pente = 9,974–6,513 = 3,461 g·m⁻²·j⁻¹
+
+    Le haricot capte moins de ressources de la maïs du fait de son VPR plus faible, cependant pour produire une biomasse égale à celle du maïs, il a besoin de plus d'eau en raison de son TEc
+
+-   **Maïs + Salade**
+
+    -   Maïs : 278,7 g·m⁻² à J 60, pente = 7,696 g·m⁻²·j⁻¹ =\> –33,1 % par rapport à la monoculture
+
+    -   Salade : 331,0–278,7 = 52,3 g·m⁻², pente = 8,943–7,696 = 1,247 g·m⁻²·j⁻¹
+
+La salade, avec un VPR faible, prélève peu d’eau : elle limite donc modérément la croissance du maïs (-33,1 %), mais sa propre biomasse reste très réduite.
+
+En résumé :
+
+-   **Le rendement maximum** : en monoculture, le maïs montre la plus forte pente et la plus grande biomasse (416 g·m⁻²).
+
+-   **Les compromis de l'interculture** : toute espèce associée capte une part non négligeable des ressources, diminuant la production du maïs :
+
+    1.  **Salade** : moindre prélèvement (–33 % de maïs), mais biomasse associative très faible.
+
+    2.  **Haricot** : biomasse associative ≈ 124 g·m⁻², réduction du maïs ≈ 42 %.
+
+    3.  **Courge** : biomasse associative ≈ 126 g·m⁻², réduction du maïs ≈ 58 %.
+
+**Le choix de l’associé** :\
+Le choix de la stratégie culturale doit avant tout être guidé par l’objectif agronomique et économique recherché. Si l’enjeu principal est **de maximiser le rendement de la sole de maïs**, la monoculture ou l’association avec une culture de faible compétition hydrique et lumineuse – comme la salade – se révèle la plus efficace : la courbe de croissance du maïs y conserve la pente la plus élevée, et la biomasse cumulée à 60 DAS est maximale, garantissant un gain de matière sèche par unité de surface optimal.
+
+En revanche, si l’on vise un **rendement global du système plus équilibré**, incluant la production de la culture secondaire, alors des couvertures interculturelles plus vigoureuses – haricot ou courge – deviennent pertinentes. Ces associations réduisent certes la production de maïs de 40 à 60 %, mais elles augmentent la productivité totale de la parcelle, diversifient les débouchés (graines, légumes, fourrage…) et apportent des **services écosystémiques** précieux. Par exemple, le haricot, en tant que légumineuse, contribue à la **fixation atmosphérique d’azote**, réduisant les besoins en fertilisation et améliorant la fertilité du sol pour les cultures suivantes. De même, la courge, par son feuillage étalé et son système racinaire complémentaire, peut limiter l’érosion et maintenir l’humidité du sol en période chaude.
+
+Ainsi, la décision revient à arbitrer entre l'intensification de la production de maïs (mono ou avec salade) pour maximiser le rendement unitaire et la rentabilité à court terme et l'optimisation du rendement de système (maïs + haricot ou courge) pour valoriser des coproduits, améliorer la durabilité des sols et réduire l’empreinte environnementale, au détriment d’une baisse partielle du rendement maïs.\
+Dans tous les cas, il convient d’intégrer ces choix dans une rotation culturale plus large, tenant compte des besoins en azote, de la structure du sol, des conditions climatiques et des objectifs économiques de la ferme.
+
+### Évolution de la quantité d'eau transpirée
+
+```{r graphe-transpi-cum, fig.align='center', fig.height=6, fig.width=6, out.width='70%'}
+
+# 1) Préparer chaque scénario avec deux colonnes Transpiration1_cum et Transpiration2_cum
+
+#   Maïs seul : une seule culture → Transpiration2_cum = NA
+df_mais_seul <- resultat_mais %>%
+  mutate(
+    Transpiration1_cum = cumsum(Transpiration),
+    Transpiration2_cum = NA_real_,
+    Scenario = "Maïs seul"
+  ) %>%
+  dplyr::select(Scenario, Jour, Transpiration1_cum, Transpiration2_cum)
+
+#   Maïs + Haricot
+df_mais_haricot <- resultats_mais_haricot %>%
+  mutate(
+    Transpiration1_cum = cumsum(Transpiration1),
+    Transpiration2_cum = cumsum(Transpiration2),
+    Scenario = "Maïs + Haricot"
+  ) %>%
+  dplyr::select(Scenario, Jour, Transpiration1_cum, Transpiration2_cum)
+
+#   Maïs + Courge
+df_mais_courge <- resultats_mais_courge %>%
+  mutate(
+    Transpiration1_cum = cumsum(Transpiration1),
+    Transpiration2_cum = cumsum(Transpiration2),
+    Scenario = "Maïs + Courge"
+  ) %>%
+  dplyr::select(Scenario, Jour, Transpiration1_cum, Transpiration2_cum)
+
+#   Maïs + Salade
+df_mais_salade <- resultats_mais_salade %>%
+  mutate(
+    Transpiration1_cum = cumsum(Transpiration1),
+    Transpiration2_cum = cumsum(Transpiration2),
+    Scenario = "Maïs + Salade"
+  ) %>%
+  dplyr::select(Scenario, Jour, Transpiration1_cum, Transpiration2_cum)
+
+# 2) Concaténer et passer en format long, en supprimant les NA
+df_transpi_all <- bind_rows(
+  df_mais_seul,
+  df_mais_haricot,
+  df_mais_courge,
+  df_mais_salade
+) %>%
+  pivot_longer(
+    cols           = c(Transpiration1_cum, Transpiration2_cum),
+    names_to       = "Culture",
+    values_to      = "Transpiration_cum",
+    values_drop_na = TRUE
+  )
+
+# 3) Tracé en facettes
+ggplot(df_transpi_all, aes(x = Jour, y = Transpiration_cum, color = Culture)) +
+  geom_line(size = 0.8) +
+  geom_point(size = 1.5) +
+  facet_wrap(~ Scenario, ncol = 2) +
+  labs(
+    title = "Transpiration cumulée par scénario",
+    x     = "DAS",
+    y     = "Transpiration cumulée [mm]",
+    color = "Culture"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(strip.text = element_text(face = "bold"))
+
+```
+
+```{r WUE, fig.align='center', fig.height=6, fig.width=6, out.width='70%'}
+# 1) Préparer WUE (Water Use Efficiency) cumulée pour chaque scénario
+make_wue_df <- function(df, scenario, is_duo=FALSE) {
+  if (!is_duo) {
+    df2 <- df %>%
+      mutate(
+        Biomasse_cum = Biomasse_cum,
+        Transp_cum   = cumsum(Transpiration)
+      ) %>%
+      dplyr::select(Jour, Biomasse_cum, Transp_cum) %>%
+      mutate(Scenario = scenario)
+  } else {
+    df2 <- df %>%
+      mutate(
+        Biomasse_cum = Biomasse_cum1 + Biomasse_cum2,
+        Transp_cum   = cumsum(Transpiration1) + cumsum(Transpiration2)
+      ) %>%
+      dplyr::select(Jour, Biomasse_cum, Transp_cum) %>%
+      mutate(Scenario = scenario)
+  }
+  df2 %>%
+    mutate(WUE = Biomasse_cum / Transp_cum)
+}
+
+wue_all <- bind_rows(
+  make_wue_df(resultat_mais,               "Maïs seul",      FALSE),
+  make_wue_df(resultats_mais_haricot,      "Maïs + Haricot", TRUE),
+  make_wue_df(resultats_mais_courge,       "Maïs + Courge",  TRUE),
+  make_wue_df(resultats_mais_salade,       "Maïs + Salade",  TRUE)
+)
+
+# a) WUE au cours du temps
+ggplot(wue_all, aes(x = Jour, y = WUE, color = Scenario)) +
+  geom_line() + geom_point() +
+  labs(title="WUE cumulée (g·m⁻² / mm)", x="DAS", y="WUE") +
+  theme_minimal()
+# b) table des valeurs de WUE à J60
+wue_J60 <- wue_all %>%
+  filter(Jour == 60) %>%
+  dplyr::select(Scenario, WUE) %>%
+  arrange(desc(WUE))
+
+knitr::kable(
+  wue_J60,
+  col.names = c("Scénario", "WUE à J60 (g·m2/mm)"),
+  caption   = "Tableau : Water Use Efficiency cumulée au jour 60"
+)
+```
+
+Le Water Use Efficiency (WUE) est défini comme le rapport entre la biomasse cumulée produite et l’eau transpirée : $\mathrm{WUE} = \frac{\sum B}{T}$ [@rouphael_radiation_2005]
+
+On distingue deux phases dans l'évolution du WUE en fonction du DAS :
+
+1.  **Phase initiale (30–35 DAS)\
+    **Toutes les courbes démarrent à des valeurs élevées (jusqu’à \~25 g·m⁻²/mm) et chutent rapidement, car la biomasse augmente rapidement alors que l’extraction d’eau reste faible lors des premiers jours de simulation.
+
+2.  **Stabilisation progressive\
+    **Après environ 35 jours, la WUE tend vers un plateau situé entre 4,5 et 6 g·m⁻²/mm, reflet d’un équilibre entre accroissement de la biomasse et hausse de la transpiration quotidienne. Ceci est du au faible ralentissement de la production de biomasse et à la constante augmentation de la transpiration quotdienne du à cette production de biomasse et aux conditions de températures.
+
+La monoculture (Maïs seul) obtient la WUE la plus élevée (5,48) grâce à l’absence de concurrence : toute l’eau consommée est valorisée en biomasse de maïs, l'Interculture avec salade (5,39) et avec haricot (5,38) présentent une WUE très proche de la monoculture, signe que ces associations préservent assez bien l’efficacité hydrique du système, alors que l'interculture avec courge chute nettement (4,40), la courge mobilisant beaucoup d’eau pour un gain de biomasse moindre, d’où une moindre efficacité.
+
+\newpage
+## Analyse de sensibilité : modification de la densité
+
+```{r sensibilité-multiscénarios, echo=FALSE, message=FALSE, warning=FALSE}
+
+# 1) Densités à tester
+densities <- seq(0.1, 0.9, by = 0.1)
+
+# 2) Liste des scénarios interculture à comparer
+scenarios <- list(
+  "Maïs + Haricot" = haricot,
+  "Maïs + Courge"  = courge,
+  "Maïs + Salade"  = salade
+)
+
+# 3) Simulation pour chaque scénario et chaque densité
+sens_all <- imap_dfr(scenarios, function(culture2_params, scenario_name) {
+  map_dfr(densities, function(d1) {
+    d2 <- 1 - d1
+    sim <- simulate_two(
+      facteur_externe, soil_params, 
+      mais, culture2_params,
+      expansion_foliaire, expansion_foliaire2,
+      Densite1 = d1, Densite2 = d2
+    )
+    tibble(
+      Scenario        = scenario_name,
+      Density         = d1,
+      Biomasse_final  = tail(sim$Biomasse_cum1, 1)
+    )
+  })
+})
+
+# 4) Valeur de référence en monoculture
+ref_biom <- tail(resultat_mais$Biomasse_cum, 1)
+
+# 5) Tracé unique avec une courbe par scénario interculture
+ggplot(sens_all, aes(x = Density, y = Biomasse_final, color = Scenario)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  geom_hline(
+    yintercept = ref_biom,
+    linetype   = "dashed",
+    color      = "black"
+  ) +
+  labs(
+    title    = "Sensibilité de la biomasse finale du maïs à la densité interculture",
+    subtitle = paste0("Référence monoculture = ", round(ref_biom, 1), " g·m⁻²"),
+    x        = "Densité du maïs",
+    y        = "Biomasse finale du maïs (g·m⁻²)",
+    color    = "Scénario"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+Une analyse de sensibilité sur l'impact de la densité de culture sur la production de biomasse du maïs a été effectuée pour chaque scénario d'interculture. La densité varie de 0,1 à 0,9 par pas de 0,1.
+
+Le graphique issus de l'analyse de sensibilité met en lumière plusieurs tendances clés quant à l’effet de la densité de maïs sur sa production finale en interculture :
+
+-   **Progression quasi-linéaire de la biomasse avec la densité\
+    **Pour les trois scénarios d’interculture, la biomasse finale du maïs augmente de manière approximativement linéaire lorsque sa densité évolue de 0,1 à 0,9. Cette pente positive traduit le fait qu’un peuplement plus serré de maïs concentre davantage de surface foliaire et de racines par unité de surface, ce qui accroît l’absorption de lumière et d’eau — et donc la fixation de carbone — jusqu’à 60 DAS.
+
+-   **Effet de la concurrence par scénario :**
+
+    -   **Position de la référence monoculture\
+        **La ligne en pointillés (≈416 g·m⁻²) permet de visualiser l’écart maximal : aucun scénario interculture n’atteint la production de la monoculture, même à densité 0,9. L’écart relatif diminue légèrement aux densités élevées, suggérant qu’un maïs très dense compense partiellement la compétition, mais sans jamais l’éliminer.
+
+    -   **Maïs + Salade (courbe bleue)\
+        **C’est le scénario où le maïs conserve la production la plus élevée à chaque densité : par exemple, à densité 0,5 le maïs produit \~280 g·m⁻², contre \~250 g·m⁻² en haricot et \~170 g·m⁻² en courge. La salade, à enracinement superficiel limité, exerce une concurrence modérée et permet au maïs de capter la majeure partie des ressources.
+
+    -   **Maïs + Haricot (courbe verte)\
+        **L’association haricot-maïs se situe en position intermédiaire : la biomasse maïs est inférieure d’environ 15 % à celle obtenue avec salade à densité 0,5 (≈240 vs 280 g·m⁻²). Le haricot, grâce à son développement racinaire et à une RUE comparable, prélève une part non négligeable de l’eau et de la lumière, ce qui se traduit par une pente légèrement plus faible que pour le maïs seul.
+
+    -   **Maïs + Courge (courbe rouge)\
+        **La courbe la plus plate : à densité 0,5 le maïs plafonne autour de 170–180 g·m⁻² (–60 % par rapport à la monoculture), signe d’une forte compétition hydrique et lumineuse exercée par le couvert dense de courge. La pente de cette courbe est nettement la plus faible, surtout aux faibles densités, ce qui confirme le pouvoir concurrentiel de la courge.
+
+-   **Optimisation de la densité :**
+
+    -   **Faibles densités (\< 0,3)** : la production est très réduite pour tous les scénarios, le maïs ne formant pas assez de biomasse totale malgré l’absence de concurrence.
+
+    -   **Intermédiaires (0,4–0,6)** : zone de rendement “optimal” en interculture, où la pente reste forte pour salade et haricot, mais chute beaucoup pour courge.
+
+    -   **Densités proches de l’équilibre (0,7–0,9)** : les gains marginaux de biomasse diminuent, signe d’une saturation des ressources (lumière/le sol) et d’effets d’ombrage entre maïs eux-mêmes.
+
+-   **Recommandations agronomiques** : pour maximiser la production de maïs, privilégier la monoculture ou l’association avec salade à densité ≥ 0,6. Pour un système plus équilibré et durable (rendement total + services écosystémiques), un compromis autour de densité 0,5–0,7 en interculture maïs–haricot peut être optimal.
+
+```{r sensibilité-multiscénarios-table, echo=FALSE, message=FALSE, warning=FALSE}
+
+# 1) On part de sens_all tel que défini précédemment
+#    Il faut juste s'assurer que Scenario est un facteur
+sens_stats <- sens_all %>%
+  mutate(Scenario = factor(Scenario, levels = names(scenarios)))
+
+# 2) ANOVA à deux facteurs : Biomasse_final ~ Scenario + Density
+aov_sens <- aov(Biomasse_final ~ Scenario + Density, data = sens_stats)
+print(summary(aov_sens))
+
+# 3) Test de Tukey sur l’effet Scénario
+tukey_scen <- glht(aov_sens, linfct = mcp(Scenario = "Tukey"))
+print(summary(tukey_scen))
+```
+
+L’ANOVA à deux facteurs met en évidence que le scénario interculture a un effet hautement significatif sur la biomasse finale du maïs (F₍₂,₂₃₎ = 56.96, p = 1.23×10⁻⁹) et que la densité joue également un rôle majeur (F₍₁,₂₃₎ = 331.15, p = 3.75×10⁻¹⁵).
+
+Le test de Tukey post-hoc révèle trois contrastes tous significatifs après correction :
+
+-   Maïs + Courge vs Maïs + Haricot : la production de maïs est en moyenne 59.2 g·m⁻² inférieure en présence de courge qu’avec haricot (p \< 0.001).
+
+-    Maïs + Salade vs Maïs + Haricot : le maïs produit 27.8 g·m⁻² de plus associé à la salade qu’avec le haricot (p = 0.0078).
+
+-   Maïs + Salade vs Maïs + Courge : la salade permet au maïs de gagner 86.9 g·m⁻² de biomasse de plus que la courge (p \< 0.001).
+
+On peut donc classer l’impact des intercultures sur la biomasse du maïs dans l’ordre décroissant : \
+Salade \> Haricot \> Courge avec des différences de l’ordre de 30–90 g·m⁻² selon les associations.
+
+\newpage
+## Relation entre les racines et la production de biomasse
+
+```{r graphe-rdepth, fig.align='center', fig.height=6, fig.width=6, out.width='70%'}
+
+# 1) Concaténation et mise en long des profondeurs racinaires
+df_root_all <- bind_rows(
+  resultat_mais          %>% mutate(Scenario = "Maïs seul")%>% rename(rdepth1 = rdepth),
+  resultats_mais_haricot %>% mutate(Scenario = "Maïs + Haricot")%>% rename(rdepth1 = rdepth),
+  resultats_mais_courge  %>% mutate(Scenario = "Maïs + Courge")%>% rename(rdepth1 = rdepth),
+  resultats_mais_salade  %>% mutate(Scenario = "Maïs + Salade")%>% rename(rdepth1 = rdepth)
+) %>%
+  pivot_longer(
+    cols            = starts_with("rdepth"),
+    names_to        = "Culture",
+    values_to       = "Racine_mm",
+    values_drop_na  = TRUE
+  )
+
+# 2) Tracé en facettes
+ggplot(df_root_all, aes(x = Jour, y = Racine_mm, color = Culture)) +
+  geom_line(size = 0.8) +
+  geom_point(size = 1.5) +
+  facet_wrap(~ Scenario, ncol = 2) +
+  labs(
+    title = "Évolution de la profondeur racinaire",
+    x     = "DAS",
+    y     = "Profondeur racinaire [mm]",
+    color = "Culture"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(strip.text = element_text(face = "bold"))
+```
+
+Dans ce modèle minimaliste, la dynamique de développement racinaire n’est pas affectée par la présence d’une seconde espèce : chaque culture voit sa racine progresser linéairement jusqu’à une profondeur maximale (≈ 1 000 mm) définie a priori, indépendamment de la compétition interculture. En réalité, on observe que :
+
+-   **Le maïs** (courbe rouge) atteint la profondeur maximale la plus élevée et rapidement (vers 50 DAS),
+
+-   **La courge** (courbe bleue, haut-gauche) suit avec un enracinement proche mais légèrement retardé,
+
+-   **Le haricot** (courbe bleue, haut-droite) affiche une progression similaire à celle de la courge,
+
+-   **La salade** (courbe bleue, bas-gauche) reste nettement plus superficielle, plafonnant autour de 500 mm à 60 DAS.
+
+Cette uniformité de la croissance racinaire à la monoculture et à l’interculture résulte de l’absence, dans le modèle, de feedbacks liant compétition pour l’eau et extension racinaire. Pourtant, c’est précisément ce potentiel de profondeur qui dicte la capacité d’exploration des horizons les plus profonds et, par conséquent, l’accès à l’eau stockée dans le sol : la salade, dont le système racinaire reste très peu développé, ne peut pas puiser dans les réserves profondes et dépend presque exclusivement des premières dizaines de centimètres de terrain, tandis que maïs, courge et haricot bénéficient de l’apport hydrique plus stable des couches plus basses.
+
+Il serait grandement profitable de lier le modèle APSIM à un modèle de modélisation racinaire comme CRootBox afin de mieux developper le feedback entre la production racinaire et la quantité d'eau disponible.
+
+```{r couplage-racines-biomasse, message=FALSE, warning=FALSE}
+
+# 1) Concaténer les données racines vs biomasse journalière
+df_root_biom <- bind_rows(
+  resultat_mais %>%
+    transmute(
+      Scenario  = "Maïs seul",
+      rdepth    = rdepth,
+      biomasse  = Biomasse_reelle
+    ),
+  resultats_mais_haricot %>%
+    transmute(Scenario = "Maïs + Haricot", rdepth = rdepth,     biomasse = Biomasse1),
+  resultats_mais_courge  %>%
+    transmute(Scenario = "Maïs + Courge",  rdepth = rdepth,     biomasse = Biomasse1),
+  resultats_mais_salade  %>%
+    transmute(Scenario = "Maïs + Salade",  rdepth = rdepth,     biomasse = Biomasse1)
+)
+
+# 2) Test de corrélation de Pearson
+cor_test <- cor.test(df_root_biom$rdepth, df_root_biom$biomasse)
+r_val   <- round(cor_test$estimate, 2)
+p_val   <- signif(cor_test$p.value, 2)
+corr_label <- paste0("r = ", r_val, "\n", "p = ", p_val)
+
+# 3) Nuage de points + droite de régression + annotation
+ggplot(df_root_biom, aes(x = rdepth, y = biomasse, color = Scenario)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE) +
+  annotate(
+    "text",
+    x = Inf, y = Inf,
+    label = corr_label,
+    hjust = 1.1, vjust = 1.5,
+    size = 4,
+    color = "black"
+  ) +
+  labs(
+    title = "Relation profondeur racinaire vs biomasse journalière",
+    x     = "Profondeur racinaire (mm)",
+    y     = "Biomasse journalière (g·m⁻²)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+```{r synthèse-régressions, message=FALSE, warning=FALSE}
+
+# 1) Préparer la liste des modèles
+models <- list(
+  "Maïs seul"       = lm(Biomasse_reelle              ~ rdepth,             data = resultat_mais),
+  "Maïs + Haricot"  = lm((Biomasse1 + Biomasse2)     ~ rdepth + rdepth2,   data = resultats_mais_haricot),
+  "Maïs + Courge"   = lm((Biomasse1 + Biomasse2)     ~ rdepth + rdepth2,   data = resultats_mais_courge),
+  "Maïs + Salade"   = lm((Biomasse1 + Biomasse2)     ~ rdepth + rdepth2,   data = resultats_mais_salade)
+)
+
+# 2) Extraire coefficients et statistics de chaque modèle
+reg_coefs <- 
+  imap_dfr(models, ~ tidy(.x) %>% 
+             filter(term != "(Intercept)") %>% 
+             dplyr::select(term, estimate, std.error, p.value) %>% 
+             mutate(Scenario = .y),
+           .id = NULL)
+
+# 3) Extraire R² ajusté et p-value globale
+reg_glance <- 
+  imap_dfr(models, ~ glance(.x) %>% 
+             dplyr::select(r.squared, adj.r.squared, p.value) %>% 
+             mutate(Scenario = .y),
+           .id = NULL)
+
+# 4) Combiner en un seul tableau
+reg_summary <- 
+  left_join(reg_coefs, reg_glance, by = "Scenario") %>%
+  dplyr::select(
+    Scenario, term, 
+    slope           = estimate,
+    `Std. Error`    = std.error,
+    `p-value slope` = p.value.x,
+    `R²`            = r.squared,
+    `R² ajusté`     = adj.r.squared,
+    `p-value global`= p.value.y
+  )
+
+# 5) Afficher
+knitr::kable(
+  reg_summary,
+  caption = "Synthèse des régressions linéaires par scénario"
+)
+
+```
+
+Dans toutes les situations, on observe une pente négative de la relation entre profondeur racinaire et production journalière de biomasse : plus les racines s’allongent, moins la plante produit de biomasse chaque jour. Cette « corrélation » n’est pas un effet causal direct, mais traduit simplement que, dans notre modèle, l’augmentation linéaire de la profondeur racinaire survient en fin de cycle, alors que la croissance foliaire tend naturellement à ralentir.
+
+-   **Maïs seul** : la régression donne une pente de –0,0217 g·m⁻²·mm⁻¹ (p \< 10⁻⁶, R²ajusté = 0,54). Autrement dit, pour chaque millimètre de racine supplémentaire, la biomasse journalière diminue de \~0,02 g·m⁻², ce qui reflète plutot le déclin de la croissance vers la fin de la simulation.
+
+-   **Maïs + Haricot** : pente maïs –0,0108 (p = 0,63, R²ajusté = 0,32) et pente haricot –0,0160 (p = 0,53). La relation est encore négative mais non significative, montrant que la compétition hydrique et lumineuse entre deux espèces efface l’effet temporel simple observé en monoculture.
+
+-   **Maïs + Courge** : pente maïs –0,0155 (p = 0,57, R²ajusté = 0,20) et pente courge –0,0075 (p = 0,79). Même constat : l’extension racinaire ne suffit plus à expliquer la production quotidienne de biomasse.
+
+-   **Maïs + Salade** : pente maïs –0,0069 (p = 0,70, R²ajusté = 0,29) et pente salade –0,0232 (p = 0,50). La courbe salade, aux racines peu profondes, montre un léger déclin quotidien, mais là encore non significatif.
+
+En conclusion, dans ce cadre purement « racine linéaire → eau → biomasse », la profondeur n’est qu’un proxy du temps et ne pilote pas directement la production journalière. Seule la monoculture révèle une relation significative (pente et R² élevées).
+
+\newpage
+# Conclusion
+
+Dans cette étude, nous avons prolongé le cadre classique d’APSIM monoculture pour développer un modèle duo capable de simuler la co-culture de deux espèces (maïs + plante associée) sur un profil de sol à trois horizons, en intégrant la compétition hydrique via un arbitrage de la transpiration. La transition du modèle mono au modèle duo s’appuie sur trois étapes clés :
+
+1.  **Reproduction du module monoculture** : nous avons d’abord implémenté et validé le simulateur mono-culture (maïs seul), en vérifiant que, pour chaque jour, la transpiration réelle ne dépasse jamais l’offre potentielle en eau du sol (Pot_Supply ≥ Transpiration), garantissant la cohérence physique des calculs et la stabilité numérique.
+
+2.  **Extension au duo-culture** : chaque espèce conserve sa propre dynamique racinaire (croissance linéaire avec VPR), sa demande hydrique (liée au LAI et à la radiation) et sa production organique, mais la distribution journalière de l’eau est partagée proportionnellement aux demandes relatives. Cette approche simple mais robuste préserve l’intégrité des mécanismes fondamentaux (extraction, transpiration, biomasse) tout en autorisant des scénarios d’association variés.
+
+3.  **Vérifications de sensibilité et de plausibilité** :
+
+    -   **Transpiration** ne depasse pas l'offre, la validation des simulations a montré que, quel que soit le scénario, l’offre en eau du sol (Pot_Supply) reste systématiquement supérieure à la demande réelle de transpiration, garantissant la cohérence physique du modèle.
+
+    -   **Réserves en eau** : l’analyse des stocks restants à J60 révèle qu’en interculture, chaque scénario retient davantage d’eau profonde (jusqu’à +10 mm dans l’horizon 3 vs monoculture), confirmant une exploitation plus équilibrée du profil.\
+        Le maïs exploite profondément le profil (horizon 3 laissé à seulement \~11 mm à J60), alors qu’en interculture l’eau profonde est mieux préservée (jusqu’à \~20 mm résiduels), signe d’une répartition racinaire plus complémentaire ou d’une moindre demande globale.
+
+    -   **Ratio Offre/Demande (O/D)** : le nombre de jours de stress hydrique (O/D \< 1) passe de 26 en mono à 31 en interculture, soulignant un léger accroissement des épisodes de tension, mais laissé à un niveau acceptable pour la période simulée (30 jours).
+
+    -   **Production de biomasse** :
+
+        -   *Monoculture :* le maïs atteint 416 g·m⁻² à J60 (pente = 12 g·m⁻²·j⁻¹).
+
+        -   *Maïs + Courge :* 176 g·m⁻² pour le maïs (–58 %), 126 g·m⁻² pour la courge,
+
+        -   *Maïs + Haricot :* 244 g·m⁻² pour le maïs (–41 %), 124 g·m⁻² pour le haricot,
+
+        -   *Maïs + Salade :* 279 g·m⁻² pour le maïs (–33 %), 49 g·m⁻² pour la salade.
+
+    Ces résultats montrent que chaque plante associée capte un volume d’eau et de lumière capable de réduire significativement la croissance du maïs, illustrant le compromis classique entre rendement de la culture principale et valeur ajoutée de la culture secondaire.
+
+4.  **Analyse de sensibilité :** en faisant varier la densité relative du maïs (0,1 à 0,9) dans les intercultures, nous avons observé une décroissance quasi‐linéaire de la biomasse finale du maïs à J60 en présence d'une interculture. Chaque espèce associée affichant une pente caractéristique : la salade réduit le moins la production (pente modérée), tandis que la courge et le haricot exercent une pression plus forte. La valeur de référence en monoculture (416 g·m⁻²) a été tracée pour visualiser la perte/addition relative. Un test ANOVA a confirmé que la densité (p \< 10⁻¹⁴) et le scénario interculture (p \< 10⁻⁹) influencent significativement la biomasse du maïs, et un test de Tukey a montré des différences marquées entre chaque couple de scénarios (toutes p \< 0,01).
+
+5.  **Perspectives :** plusieurs axes d’enrichissement du modèle méritent d’être explorés :
+
+    1.  **Compétition lumineuse** : coupler l’interaction des LAI pour mieux simuler l’ombrage mutuel et les effets de concurrence foliaire.
+
+    2.  **Dynamique azotée** : introduire le module N d’APSIM pour quantifier l’apport fertilisant des légumineuses (fixation symbiotique) et ses retombées sur la croissance du maïs.
+
+    3.  **Plasticité racinaire** : substituer la croissance linéaire par une répartition adaptative des racines, modulée par l’humidité locale des horizons et la densité de peuplement.
+
+    4.  **Validation terrain** : confronter les simulations à des jeux de données expérimentales (flux de transpiration, mesures de biomasse, observations racinaires), afin d’ajuster et calibrer les coefficients d’extraction (kl), d’expansion foliaire (CEF) et de conversion (RUE, TEC).
+
+En somme, le passage du modèle mono au modèle duo, validé par des tests de cohérence hydrique et agronomique, offre un outil versatile pour étudier les compromis agro‐écologiques en interculture. Il permet d’informer la conduite de cultures associées, que ce soit pour maximiser la production de maïs (monoculture ou intercalée avec salade) ou pour équilibrer les rendements de systèmes maïs–légumineuse (haricot, courge), tout en préparant le terrain pour intégrer d’autres services écosystémiques (fertilité, biodiversité).
 
 # Collaboration
 
@@ -716,4 +1559,5 @@ Je remercie aussi Ismael Peeters pour son aide sur la théorie lié au kl.
 
 J'ai pu aidé Emile Davio et Zoé Saintrain sur des points relatifs à la théorie et au code d'APSIM.
 
+\newpage
 # Références
