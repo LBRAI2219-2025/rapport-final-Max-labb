@@ -296,8 +296,8 @@ simulate_two_cultures <- function(facteur_externe, soil_params, culture_params, 
     of3_c2 <- ifelse(rdepth2 <= sum(soil_params$Epaisseur[1:2]), 0,
                      (rdepth2 - sum(soil_params$Epaisseur[1:2])) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
     
-    Pot_Supply1 <- of1_c1 + of2_c1 + of3_c1
-    Pot_Supply2 <- of1_c2 + of2_c2 + of3_c2
+    Pot_Supply1 <- Densite1 * (of1_c1 + of2_c1 + of3_c1)  # offre potentielle culture 1
+    Pot_Supply2 <- Densite2 * (of1_c2 + of2_c2 + of3_c2)  # offre potentielle culture 2
     Pot_Supply  <- Pot_Supply1 + Pot_Supply2  # totale
     
     ## 3) Effet lumineux
@@ -387,7 +387,7 @@ resultats_two <- simulate_two_cultures(facteur_externe, soil_params, culture_par
 print(resultats_two)
 
 ###############################################################################
-# Graphiques à enlever pour rendu final
+# Graphiques 
 ###############################################################################
 
 # Graphe O/D
@@ -482,6 +482,6 @@ ggplot() +
   theme(legend.position = "bottom")
 
 # Pot_supply == Transpiration1 + Transpiration2 ?
-resultats_two$Pot_Supply <= resultats_two$Transpiration1 + resultats_two$Transpiration2
+resultats_two$Pot_Supply >= resultats_two$Transpiration1 + resultats_two$Transpiration2
 #différence ?
 resultats_two$Pot_Supply - (resultats_two$Transpiration1 + resultats_two$Transpiration2)
