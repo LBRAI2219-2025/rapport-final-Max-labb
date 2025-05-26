@@ -1,9 +1,11 @@
 # LBRAI2219 - Modélisation des systèmes biologiques (2025)
 #Code inspiré par le modèle APSIM fait par Alice Falzon et Maxime Cornez 
+# Ce script simule la croissance de deux cultures en interculture en tenant compte de l'eau disponible et de la radiation solaire
 
 ###############################################################################
 # Modèle
 ###############################################################################
+
 # Densite des deux cultures
 Densite1 <- 0.5 # Densité de la culture 1 
 Densite2 <- 1-Densite1 # Densité de la culture 2 
@@ -44,26 +46,31 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
   # Préparation d'un data frame pour stocker les résultats quotidiens
   results <- data.frame(
     Jour = facteur_externe$Jours,
-    Tot_ES = numeric(n_days),         # Eau totale dans le sol
-    Pot_Supply = numeric(n_days),     # Offre potentielle globale du sol
-    Pot_Demand1 = numeric(n_days),    # Demande potentielle culture 1
-    Pot_Demand2 = numeric(n_days),    # Demande potentielle culture 2
-    sdratio1 = numeric(n_days),       # Offre/Demande culture 1
-    sdratio2 = numeric(n_days),       # Offre/Demande culture 2
-    Transpiration1 = numeric(n_days), # Transpiration culture 1
-    Transpiration2 = numeric(n_days), # Transpiration culture 2
-    LAI1 = numeric(n_days),           # LAI culture 1
-    LAI2 = numeric(n_days),           # LAI culture 2
-    rdepth = numeric(n_days),         # Profondeur racinaire culture 1
-    rdepth2 = numeric(n_days),        # Profondeur racinaire culture 2
-    Biomasse1 = numeric(n_days),      # Biomasse journalière culture 1
-    Biomasse2 = numeric(n_days)       # Biomasse journalière culture 2
+    Tot_ES = numeric(n_days),              # Eau totale dans le sol
+    Pot_Supply = numeric(n_days),          # Offre potentielle globale du sol
+    Pot_Demand1 = numeric(n_days),         # Demande potentielle culture 1
+    Pot_Demand2 = numeric(n_days),         # Demande potentielle culture 2
+    sdratio1 = numeric(n_days),            # Offre/Demande culture 1
+    sdratio2 = numeric(n_days),            # Offre/Demande culture 2
+    Transpiration1_loc = numeric(n_days),  # Transpiration culture 1 si elle était seule
+    Transpiration2_loc = numeric(n_days),  # Transpiration culture 2 si elle était seule
+    Transpiration1 = numeric(n_days),      # Transpiration journalière culture 1 avec arbitrage
+    Transpiration2 = numeric(n_days),      # Transpiration journalière culture 2 avec arbitrage
+    LAI1 = numeric(n_days),                # LAI culture 1
+    LAI2 = numeric(n_days),                # LAI culture 2
+    rdepth = numeric(n_days),              # Profondeur racinaire culture 1
+    rdepth2 = numeric(n_days),             # Profondeur racinaire culture 2
+    Biomasse1 = numeric(n_days),           # Biomasse journalière culture 1
+    Biomasse2 = numeric(n_days),           # Biomasse journalière culture 2
+    ES1 = numeric(n_days),                 # Eau disponible horizon 1
+    ES2 = numeric(n_days),                 # Eau disponible horizon 2
+    ES3 = numeric(n_days)                  # Eau disponible horizon 3
   )
   
-  results$LAI1[1] <- LAI1[1]            # Initialisation du LAI1
-  results$LAI2[1] <- LAI2[1]            # Initialisation du LAI2
-  results$Biomasse1[1] <- Biomasse1[1]  # Initialisation de la biomasse journalière culture 1
-  results$Biomasse2[1] <- Biomasse2[1]  # Initialisation de la biomasse journalière culture 2
+  results$LAI1[1] <- LAI1[1]               # Initialisation du LAI1
+  results$LAI2[1] <- LAI2[1]               # Initialisation du LAI2
+  results$Biomasse1[1] <- Biomasse1[1]     # Initialisation de la biomasse journalière culture 1
+  results$Biomasse2[1] <- Biomasse2[1]     # Initialisation de la biomasse journalière culture 2
   
   # Fonction pour calculer l'effet d'expansion foliaire (interpolation sur la table OD/CEF)
   leaf_exp_effect <- function(sdratio, expansion_foliaire) {
@@ -108,9 +115,9 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     of3_c2 <- ifelse(rdepth2 <= sum(soil_params$Epaisseur[1:2]), 0,
                      (rdepth2 - sum(soil_params$Epaisseur[1:2])) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
     
-    Pot_Supply1 <- Densite1 * (of1_c1 + of2_c1 + of3_c1)  # offre potentielle culture 1
-    Pot_Supply2 <- Densite2 * (of1_c2 + of2_c2 + of3_c2)  # offre potentielle culture 2
-    Pot_Supply  <- Pot_Supply1 + Pot_Supply2              # totale
+    Pot_Supply1 <-  (of1_c1 + of2_c1 + of3_c1)  # offre potentielle culture 1
+    Pot_Supply2 <-  (of1_c2 + of2_c2 + of3_c2)  # offre potentielle culture 2
+    Pot_Supply  <- Pot_Supply1 + Pot_Supply2    # totale
     
     ## 3) Effet lumineux
     li1 <- 1 - exp(-culture_params$k  * LAI1[i])
@@ -128,13 +135,15 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     results$Pot_Demand2[i] <- Pot_Demand2
     
     ## 5) Transpiration journalière par culture
-    TT1     <- min(Pot_Supply1, Pot_Demand1)
-    TT2     <- min(Pot_Supply2, Pot_Demand2)
-    transp1 <- if (Pot_Demand1 > 0) TT1 * (Pot_Demand1 * Densite1) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0
-    transp2 <- if (Pot_Demand2 > 0) TT2 * (Pot_Demand2 * Densite2) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0
+    TT1     <- min(Pot_Supply1, Pot_Demand1) # Transpiration locale de la culture 1
+    TT2     <- min(Pot_Supply2, Pot_Demand2) # Transpiration locale de la culture 2
+    transp1 <- if (Pot_Demand1 > 0) TT1 * (Pot_Demand1 * Densite1) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0    # Transpiration culture 1 avec arbitrage de l'eau
+    transp2 <- if (Pot_Demand2 > 0) TT2 * (Pot_Demand2 * Densite2) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0    # Transpiration culture 2 avec arbitrage de l'eau
     
-    results$Transpiration1[i] <- TT1
-    results$Transpiration2[i] <- TT2
+    results$Transpiration1_loc[i] <- TT1
+    results$Transpiration2_loc[i] <- TT2
+    results$Transpiration1[i] <- transp1
+    results$Transpiration2[i] <- transp2
     
     
     # Stockage de l'eau totale du sol
@@ -145,8 +154,10 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     # On calcule le ratio offre/demande pour chaque culture
     sdratio1 <- if (Pot_Demand1 > 0) Pot_Supply1 / Pot_Demand1 else 0 # =O/D culture 1
     sdratio2 <- if (Pot_Demand2 > 0) Pot_Supply2 / Pot_Demand2 else 0 # =O/D culture 2
+    
     leaf_effect1 <- leaf_exp_effect(sdratio1, expansion_foliaire)
     leaf_effect2 <- leaf_exp_effect(sdratio2, expansion_foliaire2)
+    
     delta_LAI1 <- leaf_effect1 * culture_params$CroissPotLAI
     delta_LAI2 <- leaf_effect2 * culture2_params$CroissPotLAI
     
@@ -172,10 +183,10 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
       Biomasse_cum1[i + 1] <- Biomasse_cum1[i] + Biomasse_calc1
       Biomasse_cum2[i + 1] <- Biomasse_cum2[i] + Biomasse_calc2
     }
-    results$Biomasse1[i] <- Biomasse_calc1
-    results$Biomasse2[i] <- Biomasse_calc2
-    results$Biomasse_cum1[i] <- Biomasse_cum1[i]
-    results$Biomasse_cum2[i] <- Biomasse_cum2[i]
+    results$Biomasse1[i] <- Biomasse_calc1        # biomasse produite au jour i par la culture 1
+    results$Biomasse2[i] <- Biomasse_calc2        # biomasse produite au jour i par la culture 2
+    results$Biomasse_cum1[i] <- Biomasse_cum1[i]  # biomasse cumulée au jour i par la culture 1
+    results$Biomasse_cum2[i] <- Biomasse_cum2[i]  # biomasse cumulée au jour i par la culture 2
     
     ## 9) Mise à jour des ES horizon par horizon
     if (i < n_days) {
@@ -192,5 +203,11 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     }
   }  
   
+  # Stockage des réserves d'eau dans le data frame des résultats
+  results$ES1 <- ES1
+  results$ES2 <- ES2
+  results$ES3 <- ES3
+  
   return(results)
 }
+
