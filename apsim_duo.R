@@ -4,6 +4,9 @@
 ###############################################################################
 # Modèle
 ###############################################################################
+# Densite des deux cultures
+Densite1 <- 0.5 # Densité de la culture 1 
+Densite2 <- 1-Densite1 # Densité de la culture 2 
 
 simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2) {
   n_days <- nrow(facteur_externe)
@@ -105,9 +108,9 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     of3_c2 <- ifelse(rdepth2 <= sum(soil_params$Epaisseur[1:2]), 0,
                      (rdepth2 - sum(soil_params$Epaisseur[1:2])) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
     
-    Pot_Supply1 <- of1_c1 + of2_c1 + of3_c1
-    Pot_Supply2 <- of1_c2 + of2_c2 + of3_c2
-    Pot_Supply  <- Pot_Supply1 + Pot_Supply2  # totale
+    Pot_Supply1 <- Densite1 * (of1_c1 + of2_c1 + of3_c1)  # offre potentielle culture 1
+    Pot_Supply2 <- Densite2 * (of1_c2 + of2_c2 + of3_c2)  # offre potentielle culture 2
+    Pot_Supply  <- Pot_Supply1 + Pot_Supply2              # totale
     
     ## 3) Effet lumineux
     li1 <- 1 - exp(-culture_params$k  * LAI1[i])
