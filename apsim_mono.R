@@ -1,10 +1,10 @@
 # LBRAI2219 - Modélisation des systèmes biologiques (2025)
 #Code inspiré par le modèle APSIM fait par Alice Falzon et Maxime Cornez
-
-# Ce script simule la croissance d'une culture en fonction de l'eau disponible et de la radiation solaire.
 ###############################################################################
 # Modèle
 ###############################################################################
+
+# Ce script simule la croissance d'une culture en fonction de l'eau disponible et de la radiation solaire pour une seule culture
 
 simulate <- function(facteur_externe, soil_params, culture_params, expansion_foliaire) {
   n_days <- nrow(facteur_externe)
@@ -36,7 +36,11 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
     Biomasse_2 = numeric(n_days),
     O_D = numeric(n_days),
     Biomasse_reelle = numeric(n_days),
-    Biomasse_cumulee = numeric(n_days)
+    Biomasse_cum = numeric(n_days),
+    ES1 = numeric(n_days),
+    ES2 = numeric(n_days),
+    ES3 = numeric(n_days),
+    rdepth = numeric(n_days)
   )
   results$LAI[1] <- LAI_dyn[1]
   
@@ -67,6 +71,8 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
     # La profondeur racinaire effective est limitée par la somme des épaisseurs
     profondeur_totale <- sum(soil_params$Epaisseur)
     rdepth <- min(DAS * culture_params$VPR, profondeur_totale)
+    results$rdepth[i] <- rdepth
+    
     
     # Calcul des offres potentielles pour chaque horizon
     of1 <- ifelse(rdepth >= soil_params$Epaisseur[1], 1, rdepth / soil_params$Epaisseur[1]) * ES1[i] * soil_params$kl[1]
@@ -121,6 +127,10 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
       }
     }
   }
+  # Stockage des réserves d'eau dans le data frame des résultats
+  results$ES1 <- ES1
+  results$ES2 <- ES2
+  results$ES3 <- ES3
   
   # Calcul des indices et biomasses après simulation
   results$I <- 1 - exp(-culture_params$k * results$LAI)
@@ -128,10 +138,11 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
   results$Biomasse_2 <- facteur_externe$Radiation * culture_params$RUE * results$I
   results$O_D <- ifelse(results$Pot_Demand == 0, 0, results$Pot_Supply / results$Pot_Demand)
   results$Biomasse_reelle <- ifelse(results$O_D > 1, results$Biomasse_2, results$Biomasse_1)
-  results$Biomasse_cumulee <- culture_params$Biomasse_initiale + cumsum(results$Biomasse_reelle)
+  results$Biomasse_cum <- culture_params$Biomasse_initiale + cumsum(results$Biomasse_reelle)
   
   return(results)
 }
+```
 
 # Appel de la fonction simulate
 # resultats <- simulate(facteur_externe, soil_params, culture_params, expansion_foliaire)
