@@ -470,10 +470,13 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
 ```
 
 ```{r Apsim duo, include=TRUE, message=FALSE, warning=FALSE}
-
+# Ce script simule la croissance de deux cultures en interculture en tenant compte de l'eau disponible et de la radiation solaire
 ###############################################################################
 # Modèle
 ###############################################################################
+# Densite des deux cultures
+Densite1 <- 0.5 # Densité de la culture 1 
+Densite2 <- 1-Densite1 # Densité de la culture 2 
 
 simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_params, expansion_foliaire, expansion_foliaire2, Densite1, Densite2) {
   n_days <- nrow(facteur_externe)
@@ -575,9 +578,9 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     of3_c2 <- ifelse(rdepth2 <= sum(soil_params$Epaisseur[1:2]), 0,
                      (rdepth2 - sum(soil_params$Epaisseur[1:2])) / soil_params$Epaisseur[3]) * ES3[i] * soil_params$kl[3]
     
-    Pot_Supply1 <- of1_c1 + of2_c1 + of3_c1
-    Pot_Supply2 <- of1_c2 + of2_c2 + of3_c2
-    Pot_Supply  <- Pot_Supply1 + Pot_Supply2  # totale
+    Pot_Supply1 <- Densite1 * (of1_c1 + of2_c1 + of3_c1)  # offre potentielle culture 1
+    Pot_Supply2 <- Densite2 * (of1_c2 + of2_c2 + of3_c2)  # offre potentielle culture 2
+    Pot_Supply  <- Pot_Supply1 + Pot_Supply2              # totale
     
     ## 3) Effet lumineux
     li1 <- 1 - exp(-culture_params$k  * LAI1[i])
@@ -595,10 +598,10 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
     results$Pot_Demand2[i] <- Pot_Demand2
     
     ## 5) Transpiration journalière par culture
-    TT1     <- min(Pot_Supply1, Pot_Demand1) # Transpiration locale culture 1
-    TT2     <- min(Pot_Supply2, Pot_Demand2) # Transpiration locale culture 2
-    transp1 <- if (Pot_Demand1 > 0) TT1 * (Pot_Demand1 * Densite1) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0     #transpiration culture 1 avec arbitrage
-    transp2 <- if (Pot_Demand2 > 0) TT2 * (Pot_Demand2 * Densite2) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0     #transpiration culture 2 avec arbitrage
+    TT1     <- min(Pot_Supply1, Pot_Demand1) # Transpiration locale de la culture 1
+    TT2     <- min(Pot_Supply2, Pot_Demand2) # Transpiration locale de la culture 2
+    transp1 <- if (Pot_Demand1 > 0) TT1 * (Pot_Demand1 * Densite1) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0    # Transpiration culture 1 avec arbitrage de l'eau
+    transp2 <- if (Pot_Demand2 > 0) TT2 * (Pot_Demand2 * Densite2) / (Pot_Demand1 * Densite1 + Pot_Demand2 * Densite2) else 0    # Transpiration culture 2 avec arbitrage de l'eau
     
     results$Transpiration1[i] <- TT1
     results$Transpiration2[i] <- TT2
@@ -639,10 +642,10 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
       Biomasse_cum1[i + 1] <- Biomasse_cum1[i] + Biomasse_calc1
       Biomasse_cum2[i + 1] <- Biomasse_cum2[i] + Biomasse_calc2
     }
-    results$Biomasse1[i] <- Biomasse_calc1
-    results$Biomasse2[i] <- Biomasse_calc2
-    results$Biomasse_cum1[i] <- Biomasse_cum1[i]
-    results$Biomasse_cum2[i] <- Biomasse_cum2[i]
+    results$Biomasse1[i] <- Biomasse_calc1        # biomasse produite au jour i par la culture 1
+    results$Biomasse2[i] <- Biomasse_calc2        # biomasse produite au jour i par la culture 2
+    results$Biomasse_cum1[i] <- Biomasse_cum1[i]  # biomasse cumulée au jour i par la culture 1
+    results$Biomasse_cum2[i] <- Biomasse_cum2[i]  # biomasse cumulée au jour i par la culture 2
     
     ## 9) Mise à jour des ES horizon par horizon
     if (i < n_days) {
@@ -661,6 +664,7 @@ simulate_two <- function(facteur_externe, soil_params, culture_params, culture2_
   
   return(results)
 }
+
 ```
 
 # Résultats
