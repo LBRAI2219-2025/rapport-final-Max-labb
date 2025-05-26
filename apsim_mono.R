@@ -142,7 +142,6 @@ simulate <- function(facteur_externe, soil_params, culture_params, expansion_fol
   
   return(results)
 }
-```
 
 # Appel de la fonction simulate
 # resultats <- simulate(facteur_externe, soil_params, culture_params, expansion_foliaire)
