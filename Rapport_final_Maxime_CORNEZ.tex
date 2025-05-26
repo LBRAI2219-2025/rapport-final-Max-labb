@@ -521,8 +521,9 @@ utilisés}\label{packages-et-outils-utilisuxe9s}
 \end{Shaded}
 
 ChatGPT a été utilisé a des fins de reformulations de phrases,
-l'entièreté du texte a été relu, vérifié et approuvé. \#\# Données
-d'entrée
+l'entièreté du texte a été relu, vérifié et approuvé.
+
+\subsection{Données d'entrée}\label{donnuxe9es-dentruxe9e}
 
 \subsubsection{Paramètres des
 cultures}\label{paramuxe8tres-des-cultures}
@@ -966,6 +967,16 @@ fidèle pour étudier la croissance sous contrainte hydrique.
 \subsubsection{APSIM combinant deux
 cultures}\label{apsim-combinant-deux-cultures}
 
+Apsim duo est une extension du modèle mono, permettant de simuler la
+croissance de deux cultures en interculture. Il prend en compte les
+interactions entre les deux cultures pour l'eau et la profondeur des
+racines. Le modèle est capable de simuler la croissance des deux
+cultures en tenant compte des facteurs climatiques et hydriques, ainsi
+que des interactions entre les plantes et le sol. Le modèle inclut un
+``arbitre'' déterminant quelle culture recevra prioritairement l'eau en
+cas de déficit hydrique, cet arbitre est inclu directement dans la
+fonction du modèle.\\
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# Ce script simule la croissance de deux cultures en interculture en tenant compte de l\textquotesingle{}eau disponible et de la radiation solaire}
@@ -1365,7 +1376,7 @@ Elle ajoute :
 
 La transpiration totale doit systématiquement être limitée à l'offre en
 eau disponible afin de préserver la cohérence physique du modèle et
-d'éviter toute instabilité ou erreur mathémaique lors des calculs des
+d'éviter toute instabilité ou erreur mathématique lors des calculs des
 jours suivants.
 
 \subsection{Modélisation de l'évolution de la
@@ -1810,11 +1821,11 @@ En résumé :
 Le choix de la stratégie culturale doit avant tout être guidé par
 l'objectif agronomique et économique recherché. Si l'enjeu principal est
 \textbf{de maximiser le rendement de la sole de maïs}, la monoculture ou
-l'association avec une culture de faible compétition hydrique et
-lumineuse -- comme la salade -- se révèle la plus efficace : la courbe
-de croissance du maïs y conserve la pente la plus élevée, et la biomasse
-cumulée à 60 DAS est maximale, garantissant un gain de matière sèche par
-unité de surface optimal.
+l'association avec une culture de faible compétition hydrique, comme la
+salade, se révèle la plus efficace : la courbe de croissance du maïs y
+conserve la pente la plus élevée, et la biomasse cumulée à 60 DAS est
+maximale, garantissant un gain de matière sèche par unité de surface
+optimal.
 
 En revanche, si l'on vise un \textbf{rendement global du système plus
 équilibré}, incluant la production de la culture secondaire, alors des
@@ -2132,9 +2143,9 @@ finale en interculture :
 ## 
 ## Linear Hypotheses:
 ##                                     Estimate Std. Error t value Pr(>|t|)    
-## Maïs + Courge - Maïs + Haricot == 0  -59.156      8.321  -7.110   <1e-04 ***
-## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339   0.0077 ** 
-## Maïs + Salade - Maïs + Courge == 0    86.938      8.321  10.449   <1e-04 ***
+## Maïs + Courge - Maïs + Haricot == 0  -59.156      8.321  -7.110  < 0.001 ***
+## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339  0.00763 ** 
+## Maïs + Salade - Maïs + Courge == 0    86.938      8.321  10.449  < 0.001 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## (Adjusted p values reported -- single-step method)
@@ -2585,7 +2596,7 @@ saurais dire précisément qui l'a utilisé.
 
 Je remercie aussi Ismael Peeters pour son aide sur la théorie lié au kl.
 
-J'ai pu aidé Emile Davio et Zoé Saintrain sur des points relatifs à la
+J'ai pu aider Emile Davio et Zoé Saintrain sur des points relatifs à la
 théorie et au code d'APSIM.
 
 \newpage

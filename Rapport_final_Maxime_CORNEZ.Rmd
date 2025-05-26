@@ -3,11 +3,6 @@ title: "LBRAI2219 - Modélisation des systèmes biologiques"
 author: "Maxime CORNEZ"
 date: "24/05/2024"
 output:
-  pdf_document:
-    toc: true
-    number_sections: true
-    latex_engine: xelatex
-    keep_tex: true
   html_document:
     smart: false
     code_folding: show
@@ -19,6 +14,11 @@ output:
     number_sections: true
     toc_depth: 3
     toc_float: true
+  pdf_document:
+    toc: true
+    number_sections: true
+    latex_engine: xelatex
+    keep_tex: true
 bibliography: ressources/LBRAI2219.bib
 subtitle: Modèle APSIM pour deux cultures
 ---
@@ -165,7 +165,9 @@ library(purrr)
 library(multcomp)
 ```
 
-ChatGPT a été utilisé a des fins de reformulations de phrases, l'entièreté du texte a été relu, vérifié et approuvé. \## Données d'entrée
+ChatGPT a été utilisé a des fins de reformulations de phrases, l'entièreté du texte a été relu, vérifié et approuvé.
+
+## Données d'entrée
 
 ### Paramètres des cultures
 
@@ -546,6 +548,7 @@ Le modèle apsim mono simule jour après jour l’équilibre entre l’offre en 
 Grâce à cette architecture, le modèle relie explicitement (1) la dynamique racinaire et la déplétion des réserves du sol, (2) l’arbitrage offre/demande hydrique via l’extension foliaire, et (3) la conversion de l’eau et de la lumière en biomasse, offrant ainsi un outil simple mais fidèle pour étudier la croissance sous contrainte hydrique.
 
 ### APSIM combinant deux cultures
+Apsim duo est une extension du modèle mono, permettant de simuler la croissance de deux cultures en interculture. Il prend en compte les interactions entre les deux cultures pour l'eau et la profondeur des racines. Le modèle est capable de simuler la croissance des deux cultures en tenant compte des facteurs climatiques et hydriques, ainsi que des interactions entre les plantes et le sol. Le modèle inclut un "arbitre" déterminant quelle culture recevra prioritairement l'eau en cas de déficit hydrique, cet arbitre est inclu directement dans la fonction du modèle.\
 
 ```{r apsim_duo, include=TRUE, message=FALSE, warning=FALSE}
 # Ce script simule la croissance de deux cultures en interculture en tenant compte de l'eau disponible et de la radiation solaire
@@ -847,7 +850,7 @@ resultats_mais_salade$Pot_Supply >= resultats_mais_salade$Transpiration1 + resul
 
 ```
 
-La transpiration totale doit systématiquement être limitée à l’offre en eau disponible afin de préserver la cohérence physique du modèle et d’éviter toute instabilité ou erreur mathémaique lors des calculs des jours suivants.
+La transpiration totale doit systématiquement être limitée à l’offre en eau disponible afin de préserver la cohérence physique du modèle et d’éviter toute instabilité ou erreur mathématique lors des calculs des jours suivants.
 
 ## Modélisation de l’évolution de la culture
 
@@ -1114,7 +1117,7 @@ En résumé :
     3.  **Courge** : biomasse associative ≈ 126 g·m⁻², réduction du maïs ≈ 58 %.
 
 **Le choix de l’associé** :\
-Le choix de la stratégie culturale doit avant tout être guidé par l’objectif agronomique et économique recherché. Si l’enjeu principal est **de maximiser le rendement de la sole de maïs**, la monoculture ou l’association avec une culture de faible compétition hydrique et lumineuse – comme la salade – se révèle la plus efficace : la courbe de croissance du maïs y conserve la pente la plus élevée, et la biomasse cumulée à 60 DAS est maximale, garantissant un gain de matière sèche par unité de surface optimal.
+Le choix de la stratégie culturale doit avant tout être guidé par l’objectif agronomique et économique recherché. Si l’enjeu principal est **de maximiser le rendement de la sole de maïs**, la monoculture ou l’association avec une culture de faible compétition hydrique, comme la salade, se révèle la plus efficace : la courbe de croissance du maïs y conserve la pente la plus élevée, et la biomasse cumulée à 60 DAS est maximale, garantissant un gain de matière sèche par unité de surface optimal.
 
 En revanche, si l’on vise un **rendement global du système plus équilibré**, incluant la production de la culture secondaire, alors des couvertures interculturelles plus vigoureuses – haricot ou courge – deviennent pertinentes. Ces associations réduisent certes la production de maïs de 40 à 60 %, mais elles augmentent la productivité totale de la parcelle, diversifient les débouchés (graines, légumes, fourrage…) et apportent des **services écosystémiques** précieux. Par exemple, le haricot, en tant que légumineuse, contribue à la **fixation atmosphérique d’azote**, réduisant les besoins en fertilisation et améliorant la fertilité du sol pour les cultures suivantes. De même, la courge, par son feuillage étalé et son système racinaire complémentaire, peut limiter l’érosion et maintenir l’humidité du sol en période chaude.
 
@@ -1575,7 +1578,7 @@ Nous avons partagé notre code avec le reste de la classe, mais je ne saurais di
 
 Je remercie aussi Ismael Peeters pour son aide sur la théorie lié au kl.
 
-J'ai pu aidé Emile Davio et Zoé Saintrain sur des points relatifs à la théorie et au code d'APSIM.
+J'ai pu aider Emile Davio et Zoé Saintrain sur des points relatifs à la théorie et au code d'APSIM.
 
 \newpage
 

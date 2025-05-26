@@ -1980,10 +1980,12 @@ modèles linéaires et mixtes.</p></li>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">library</span>(multcomp)</span></code></pre></div>
 <p>ChatGPT a été utilisé a des fins de reformulations de phrases,
-l’entièreté du texte a été relu, vérifié et approuvé. ## Données
-d’entrée</p>
-<div id="paramètres-des-cultures" class="section level3" number="3.2.1">
-<h3><span class="header-section-number">3.2.1</span> Paramètres des
+l’entièreté du texte a été relu, vérifié et approuvé.</p>
+</div>
+<div id="données-dentrée" class="section level2" number="3.3">
+<h2><span class="header-section-number">3.3</span> Données d’entrée</h2>
+<div id="paramètres-des-cultures" class="section level3" number="3.3.1">
+<h3><span class="header-section-number">3.3.1</span> Paramètres des
 cultures</h3>
 <p>Dans la mesure du possible, les paramètres ont été extraits de la
 littérature. Lorsque certaines données faisaient défaut, des
@@ -2043,8 +2045,8 @@ exercice pratique donné par le professeur Draye <span class="citation">Rouphael
 <span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a>  <span class="at">Biomasse_initiale =</span> <span class="dv">15</span>     </span>
 <span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a>)</span></code></pre></div>
 </div>
-<div id="paramètres-du-sol" class="section level3" number="3.2.2">
-<h3><span class="header-section-number">3.2.2</span> Paramètres du
+<div id="paramètres-du-sol" class="section level3" number="3.3.2">
+<h3><span class="header-section-number">3.3.2</span> Paramètres du
 sol</h3>
 <p>Paramètres générés artificiellement pour avoir un sol d’ 1m
 d’épaisseur contenant un minimum de 40mm d’eau et un maximum de 100mm
@@ -2063,8 +2065,8 @@ critères propres au sol et aux plantes occupant le sol.</p>
 <span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">kl          =</span> <span class="fu">c</span>(<span class="fl">0.06</span>, <span class="fl">0.05</span>, <span class="fl">0.05</span>) <span class="co"># Taux d&#39;extraction [mm/jour]</span></span>
 <span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>)</span></code></pre></div>
 </div>
-<div id="expansion-foliaire" class="section level3" number="3.2.3">
-<h3><span class="header-section-number">3.2.3</span> Expansion
+<div id="expansion-foliaire" class="section level3" number="3.3.3">
+<h3><span class="header-section-number">3.3.3</span> Expansion
 foliaire</h3>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Culture 1</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>expansion_foliaire <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -2079,8 +2081,8 @@ foliaire</h3>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>)</span></code></pre></div>
 </div>
-<div id="paramètres-météo" class="section level3" number="3.2.4">
-<h3><span class="header-section-number">3.2.4</span> Paramètres
+<div id="paramètres-météo" class="section level3" number="3.3.4">
+<h3><span class="header-section-number">3.3.4</span> Paramètres
 météo</h3>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Données météo réelles </span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>lat <span class="ot">&lt;-</span> <span class="fl">50.666265</span>; lon <span class="ot">&lt;-</span> <span class="fl">4.622322</span>   <span class="co"># Localisation de la zone d&#39;étude : 50.666265 ; 4.622322 = batiment De serres</span></span>
@@ -2184,17 +2186,17 @@ météo</h3>
 <span id="cb5-100"><a href="#cb5-100" tabindex="-1"></a>  <span class="fu">stop</span>(<span class="st">&quot;data_source doit être &#39;reel&#39; ou &#39;artificiel&#39;&quot;</span>)</span>
 <span id="cb5-101"><a href="#cb5-101" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-<div id="densité-des-deux-cultures" class="section level3" number="3.2.5">
-<h3><span class="header-section-number">3.2.5</span> Densité des deux
+<div id="densité-des-deux-cultures" class="section level3" number="3.3.5">
+<h3><span class="header-section-number">3.3.5</span> Densité des deux
 cultures</h3>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>Densite1 <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="co"># Densité de la culture 1 </span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>Densite2 <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">-</span>Densite1 <span class="co"># Densité de la culture 2 </span></span></code></pre></div>
 </div>
 </div>
-<div id="modèles-utilisés" class="section level2" number="3.3">
-<h2><span class="header-section-number">3.3</span> Modèles utilisés</h2>
-<div id="apsim-monoculture" class="section level3" number="3.3.1">
-<h3><span class="header-section-number">3.3.1</span> APSIM
+<div id="modèles-utilisés" class="section level2" number="3.4">
+<h2><span class="header-section-number">3.4</span> Modèles utilisés</h2>
+<div id="apsim-monoculture" class="section level3" number="3.4.1">
+<h3><span class="header-section-number">3.4.1</span> APSIM
 monoculture</h3>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Ce script simule la croissance d&#39;une culture en fonction de l&#39;eau disponible et de la radiation solaire pour une seule culture</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
@@ -2386,9 +2388,19 @@ offre/demande hydrique via l’extension foliaire, et (3) la conversion de
 l’eau et de la lumière en biomasse, offrant ainsi un outil simple mais
 fidèle pour étudier la croissance sous contrainte hydrique.</p>
 </div>
-<div id="apsim-combinant-deux-cultures" class="section level3" number="3.3.2">
-<h3><span class="header-section-number">3.3.2</span> APSIM combinant
+<div id="apsim-combinant-deux-cultures" class="section level3" number="3.4.2">
+<h3><span class="header-section-number">3.4.2</span> APSIM combinant
 deux cultures</h3>
+<p>Apsim duo est une extension du modèle mono, permettant de simuler la
+croissance de deux cultures en interculture. Il prend en compte les
+interactions entre les deux cultures pour l’eau et la profondeur des
+racines. Le modèle est capable de simuler la croissance des deux
+cultures en tenant compte des facteurs climatiques et hydriques, ainsi
+que des interactions entre les plantes et le sol. Le modèle inclut un
+“arbitre” déterminant quelle culture recevra prioritairement l’eau en
+cas de déficit hydrique, cet arbitre est inclu directement dans la
+fonction du modèle.<br />
+</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Ce script simule la croissance de deux cultures en interculture en tenant compte de l&#39;eau disponible et de la radiation solaire</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co"># Densite des deux cultures</span></span>
@@ -2718,7 +2730,7 @@ cultures</h2>
 ## [31] TRUE</code></pre>
 <p>La transpiration totale doit systématiquement être limitée à l’offre
 en eau disponible afin de préserver la cohérence physique du modèle et
-d’éviter toute instabilité ou erreur mathémaique lors des calculs des
+d’éviter toute instabilité ou erreur mathématique lors des calculs des
 jours suivants.</p>
 </div>
 <div id="modélisation-de-lévolution-de-la-culture" class="section level2" number="4.2">
@@ -3123,10 +3135,10 @@ Le choix de la stratégie culturale doit avant tout être guidé par
 l’objectif agronomique et économique recherché. Si l’enjeu principal est
 <strong>de maximiser le rendement de la sole de maïs</strong>, la
 monoculture ou l’association avec une culture de faible compétition
-hydrique et lumineuse – comme la salade – se révèle la plus efficace :
-la courbe de croissance du maïs y conserve la pente la plus élevée, et
-la biomasse cumulée à 60 DAS est maximale, garantissant un gain de
-matière sèche par unité de surface optimal.</p>
+hydrique, comme la salade, se révèle la plus efficace : la courbe de
+croissance du maïs y conserve la pente la plus élevée, et la biomasse
+cumulée à 60 DAS est maximale, garantissant un gain de matière sèche par
+unité de surface optimal.</p>
 <p>En revanche, si l’on vise un <strong>rendement global du système plus
 équilibré</strong>, incluant la production de la culture secondaire,
 alors des couvertures interculturelles plus vigoureuses – haricot ou
@@ -3408,7 +3420,7 @@ densité 0,5–0,7 en interculture maïs–haricot peut être optimal.</p></li>
 ## Linear Hypotheses:
 ##                                     Estimate Std. Error t value Pr(&gt;|t|)    
 ## Maïs + Courge - Maïs + Haricot == 0  -59.156      8.321  -7.110  &lt; 0.001 ***
-## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339  0.00771 ** 
+## Maïs + Salade - Maïs + Haricot == 0   27.782      8.321   3.339  0.00769 ** 
 ## Maïs + Salade - Maïs + Courge == 0    86.938      8.321  10.449  &lt; 0.001 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
@@ -3824,7 +3836,7 @@ j’ai aussi relu son rapport.</p>
 saurais dire précisément qui l’a utilisé.</p>
 <p>Je remercie aussi Ismael Peeters pour son aide sur la théorie lié au
 kl.</p>
-<p>J’ai pu aidé Emile Davio et Zoé Saintrain sur des points relatifs à
+<p>J’ai pu aider Emile Davio et Zoé Saintrain sur des points relatifs à
 la théorie et au code d’APSIM.</p>
 <div style="page-break-after: always;"></div>
 </div>
